@@ -1,12 +1,11 @@
 import discord
 import os
-from teachers import BaseTeacher, MilitaryTeacher
 import asyncio
 import threading
 import time
 import sys
 
-from carbon import Carbon
+from rubidium import DiscordRuby
 
 import json
 
@@ -17,10 +16,10 @@ client = discord.Client(intents=intents)
 
 #some globals
 discord_queue = asyncio.Queue()
-states = {}
-states_lock = threading.Lock()
-student_records = {}
-records_lock = threading.Lock()
+user_records = {}
+user_records_lock = threading.Lock()
+
+ruby_instance = None
 
 async def process_queue():
     global discord_queue
@@ -55,33 +54,26 @@ async def send_message(channel_id, title, msg, file_path=None, color=discord.Col
 '''
 Target function for init the thread.
 '''
-def carbon_helper(user_id: str, task: str) -> None:
-    #allow this func to have access to our globals
+def rubidium_helper(user_id: str, priority_level: int, task: str) -> None:
+    '''
+    updating the user records is here as well
+    '''
     
-    global records_lock
-    global states_lock
-    global student_records
-    global discord_queue
-    global states
+    global user_records
+    global user_records_lock
+    global ruby_instance
+    
+    #update the user instance with the question that they are asking
 
-    new = False
-    #this thread gets spawned on message. we need to check if we have an instance running for this user already
-    with states_lock:
-        if (user_id in states):
-            print(f"adding task to existing instance for user: {student_records[user_id]['nickname']}")
-            #we already have an instance running, lets add it to the queue
-            instance = states[user_id]['instance']
-            instance.add_task(task)
-            return #early return because we don't want to create a new instance, and dont want to print the message either.
-        else:
-            #we don't create a new asyncio task because we don't want to block the discord heartbeat
-            #the user id needs to be a str bc python is fucky with longs and discord ID is a long
-            instance = Carbon(user_id, records_lock, student_records, states_lock, states, task, discord_queue)
-            states[user_id] = {'instance':instance, 'status':"processing"}
-            new = True
-
-    if new: instance.start()
-    print(f"closing Carbon instance for student: {student_records[user_id]['nickname']}")
+    if ruby_instance == None:
+        ruby_instance = DiscordRuby(first_task=task, first_priority=priority_level) #TODO inistialize it properly
+        
+    else:
+        #add it to the task queue
+        ruby_instance.add_task(task, priority_level)
+    
+    ruby_instance = None
+    print(f"closing Rubidium Instance. No tasks left.")
     
 #start our discord bot
 def main():
@@ -110,7 +102,7 @@ def main():
     @client.event
     async def on_message(message):
         # early returns to eliminate the stuff we don't want
-        if not message.channel.name.startswith("carbon"): #if its not a carbon channel, we don't care #TODO: change this for more fine control over where the messages are sent. only carbon-r2 for init, then only personal channels for everything else. should still keep this so we don't need to access the student records as much
+        if message.channel.name != "rubidium-admin": #for now we restrict to only the admin channel
             return
 
         if message.author == client.user: #don't respond to ourselves (the bot)
@@ -120,98 +112,20 @@ def main():
             # Purge all messages in the channel
             await message.channel.purge()
             return
-
-        #we mutex lock all access to the student records file
-        global records_lock
-        global student_records
-        with records_lock:
-
-            #run here so we don't interfere with other students who are trying to initialize
-            #we can answer everything from any channel starting with carbon, but only from me, if in test-mode
-            if test_mode and message.author.display_name == "iridescent":
-
-                #lets also add the remove student command here so that i don't do it normally not in test mode
-                if message.content.startswith("!removestudent"):
-                    #remove the student from the student records
-                    student_id = message.content.split(" ")[1]
-                    if student_id in student_records:
-                        del student_records[student_id]
-                        with open("students/student_records.json", "w") as f:
-                            json.dump(student_records, f)
-                        await message.channel.send(f"Student {student_id} removed.")
-                    else:
-                        await message.channel.send(f"Student {student_id} not found.")
-
-                    return #early return
-
-                threading.Thread(target=carbon_helper, args=(str(message.author.id), message.content)).start()
-                return
-
-            if str(message.author.id) in student_records and message.content == "!init":
-                #send a message to the user telling them they already initialized
-                msg = (f"You have already initialized your student records. You are not allowed to do this")
-                embed = discord.Embed(title=f"Student Record Already Initialized for {message.author.display_name}.", description=msg, color=discord.Color.red())
-                await message.channel.send(embed=embed)
-                return
-
-            if str(message.author.id) not in student_records and message.content != "!init": #the student is not passing an initialization command.
-                #send a message to the user telling them to initialize
-                msg = (f"Please type !init in the channel starting with \"carbon\" to initialize your student records and start learning with Carbon.")
-                embed = discord.Embed(title=f"Student Record Not Initialized for {message.author.display_name} on {time.strftime('%d/%m/%Y %H:%M:%S')}", description=msg, color=discord.Color.red())
-                await message.channel.send(embed=embed)
-                
-                return #early return because its not initialized
-
-            if str(message.author.id) not in student_records and message.content == "!init":
-
-                overwrites = {
-                    message.guild.default_role: discord.PermissionOverwrite(read_messages=False),
-                    message.author: discord.PermissionOverwrite(read_messages=True),
-                    discord.utils.get(message.guild.roles, name="admin"): discord.PermissionOverwrite(read_messages=True)
-                }
-
-                #place this channel in the NACT-R2 category
-                category = discord.utils.get(message.guild.categories, name="NACT-R2")
-
-                #create the channel
-                new_channel = await message.guild.create_text_channel(name=f"carbon-r2-{message.author.display_name}", overwrites=overwrites, category=category)
-
-                #create a new student
-                student_records[str(message.author.id)] = {
-                    "nickname": message.author.display_name,
-                    "profile": "I am an aspiring Net Assessor, and am equally interested in the theorectical underpinnings of Net Assessment as well as the practical applications of it.",
-                    "history": [],
-                    "old_profiles": [],
-                    "learning_summaries": [],
-                    "channel_id": str(new_channel.id),
-                    "progress_reports": []
-                }
-
-                #just update it
-                with open("students/student_records.json", "w") as f:
-                    json.dump(student_records, f)
-
-                #send the welcome message in that channel
-                
-                msg = (f"Student Records for {message.author.display_name} have been successfully initialized on {time.strftime('%d/%m/%Y %H:%M:%S')}\n\nWelcome to Carbon, your friendly AI teacher.\n\nI am here to help you learn all the material from the Net Assessment Textbook: 'Navigating Power Dynamics: A Comprehensive Guide to Net Assessment'\n\nPlease feel free to ask me any questions you have!")
-                embed = discord.Embed(title=f"Successful Student Record and Carbon Initialization for {message.author.display_name} on {time.strftime('%d/%m/%Y %H:%M:%S')}", description=msg, color=discord.Color.green())
-                await new_channel.send(embed=embed)
-
-                return #early return because this is their first initialization command, we can create an instance of carbon to handle other requests
-
-            if (str(message.author.id) in student_records and message.channel.id != int(student_records[str(message.author.id)]["channel_id"])):
-                return #early return because the student is sending messages not in their own channel
+        
+        priority_level = 3
+        
+        if message.author.display_name == "iridescent":
+            priority_level = 1
+        else:
+            for role in message.author.roles:
+                if role.name == "admin":
+                    priority_level = 2
+                    break
             
-            #just update the nickname if they change it
-            student_records[str(message.author.id)]["nickname"] = message.author.display_name                
+        #TODO: implement a check to see if the question is legitimate or not before we continue. else we just return. this should be done before it gets added to the task queue so they get a more immediate response.
             
-            threading.Thread(target=carbon_helper, args=(str(message.author.id), message.content)).start()
-
-
-
-            
-    
-    client.run(os.getenv("CARBON_DISCORD_TOKEN"), reconnect=True)
+        threading.Thread(target=rubidium_helper, args=(message.author.id, priority_level, message.content)).start()
    
 if __name__ == '__main__':
     main()

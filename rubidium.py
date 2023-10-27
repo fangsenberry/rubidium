@@ -25,8 +25,7 @@ class Rubidium():
     This is the base Rubidium class. The Net Assessment function is a one-pass, non-recursive approach to answering Net Assessment queries.
     
     '''
-    def __init__(self, persona: str = None):
-        self.persona = persona
+    def __init__(self):
         self.reports_directory = "generated_reports"
 
         #gpt prompt stuff
@@ -601,14 +600,14 @@ class DiscordRuby(Rubidium):
     '''
     This is an instance of Rubidium that is used for Discord. We spawn an instance for each question that is being asked, and each instance handles their own question before terminating.
     '''
-    def __init__(self, persona: str, first_task: str, first_priority: int, user_records_lock: threading.Lock, discord_bot: commands.Bot, channel_id: int) -> None:
-        super().__init__(persona)
+    def __init__(self, first_task: str, first_priority: int, user_records_lock: threading.Lock, user_records: dict, discord_queue: asyncio.Queue) -> None:
+        super().__init__()
         
         #global access for multithreaded
         self.user_records_lock = user_records_lock
         
         #discord bot specific stuff
-        self.channel_id = channel_id
+        self.discord_queue = discord_queue
         self.current_message = None
         
         #task queues
@@ -641,9 +640,14 @@ class DiscordRuby(Rubidium):
             '''
             raise(NotImplementedError)
     
-    def add_task(self, priority: int, task: str):
+    def add_task(self, task: str, priority_level: int):
         '''
         Adds a task to Rubidium's queue to be processed later
+        
+        for now, 3 diff priorities:
+        1. FY or FY level exec is asking for this
+        2. admin level / observer level is asking for this
+        3. regular person
         '''
         pass
 
