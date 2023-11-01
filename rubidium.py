@@ -12,6 +12,7 @@ import time
 import concurrent
 from tqdm.auto import tqdm
 import numpy as np
+import json
 
 from docx import Document
 from docx.enum.text import WD_ALIGN_PARAGRAPH
@@ -600,7 +601,7 @@ class DiscordRuby(Rubidium):
     '''
     This is an instance of Rubidium that is used for Discord. We spawn an instance for each question that is being asked, and each instance handles their own question before terminating.
     '''
-    def __init__(self, first_task: str, first_priority: int, user_records_lock: threading.Lock, user_records: dict, discord_queue: asyncio.Queue) -> None:
+    def __init__(self, first_task: str, first_priority: int, first_user_asking: str, user_records_lock: threading.Lock, discord_queue: asyncio.Queue) -> None:
         super().__init__()
         
         #global access for multithreaded
@@ -614,21 +615,26 @@ class DiscordRuby(Rubidium):
         self.task_queue = PriorityQueue() #sorts by the first entry of our (priority, task) tuple. tie broken by time of insertion to queue
 
         #some other globals (although this should be in net assess func TODO)
+        self.status_msg_id = None
         self.processing_title = f"Ruby Status"
         self.processing_fields = {
             'research': "INCOMPLETE",
             'preparation': "INCOMPLETE",
-            'first_projection': "INCOMPLETE",
-            'second_projection': "INCOMPLETE",
+            'first_layer': "INCOMPLETE",
+            'second_layer': "INCOMPLETE",
             'finished_report': "INCOMPLETE"
         }
         
         #add the first task to the queue
-        self.task_queue.put((first_priority, first_task))
+        self.task_queue.put((first_priority, first_task, first_user_asking)) #arranged this way so the pq can sort it properly
 
         #done with init, lets start the queue
+        self.process_queue_thread = None
+        
+    def start(self):
         self.process_queue_thread = threading.Thread(target=self.process_queue, daemon=True)
         self.process_queue_thread.start()
+        self.process_queue_thread.join()
         
     def process_queue(self):
         '''
@@ -638,9 +644,11 @@ class DiscordRuby(Rubidium):
             '''
             Call the NA func and handle all the writebacks here.
             '''
-            raise(NotImplementedError)
+            priority_level, task, user_id = self.task_queue.get()
+            self.net_assess(task)
+            
     
-    def add_task(self, task: str, priority_level: int):
+    def add_task(self, task: str, priority_level: int, user_id: str):
         '''
         Adds a task to Rubidium's queue to be processed later
         
@@ -648,80 +656,81 @@ class DiscordRuby(Rubidium):
         1. FY or FY level exec is asking for this
         2. admin level / observer level is asking for this
         3. regular person
+        
+        This is a pq so should already be sorted
         '''
-        pass
+        
+        self.task_queue.put((priority_level, task))
 
     def net_assess(self, question):
         '''
         Overloaded but basically identical version of net_assess in main ruby class, but with update messages.
         '''
-        chat_history = [] #a local version of history that we use as context for our second projection and cascading calls.
-
-        research_time = time.time()
+        curr_time = time.time()
 
         self.processing_fields['research'] = "IN PROGRESS"
-        update_message = self.format_update()
-        self.send_message(self.processing_title, update_message, color=discord.Color.blue())
+        self.update_discord_status()
 
-        information = self.get_research(question)
+        research = self.get_research(question)
         
-        self.processing_fields['research'] = f"COMPLETE, time taken: {round((time.time() - research_time)/60, 2)}"
+        self.processing_fields['research'] = f"COMPLETE, time taken: {round((time.time() - curr_time)/60, 2)}"
         self.processing_fields['preparation'] = "IN PROGRESS"
-        update_message = self.format_update()
-        self.send_message(self.processing_title, update_message, color=discord.Color.blue())
+        self.update_discord_status()
 
-        prep_time = time.time()
+        curr_time = time.time()
 
-        persona_query = f"{question}\n\n{information}"
-        specific_persona = helpers.get_persona(persona_query)
+        persona_query = f"{question}\n\n{research}"
+        specific_persona = self.get_persona(persona_query)
 
-        prep_result = netass.na_prep(specific_persona, question)
+        prep_result = self.na_prep(research, question, specific_persona)
 
-        self.processing_fields['preparation'] = f"COMPLETE, time taken: {round((time.time() - prep_time)/60, 2)}"
-        self.processing_fields['first_projection'] = "IN PROGRESS"
-        update_message = self.format_update()
-        self.send_message(self.processing_title, update_message, color=discord.Color.blue())
+        self.processing_fields['preparation'] = f"COMPLETE, time taken: {round((time.time() - curr_time)/60, 2)}"
+        self.processing_fields['first_layer'] = "IN PROGRESS"
+        self.update_discord_status()
 
-        fp_time = time.time()
+        curr_time = time.time()
 
-        first_projection = netass.projection(prep_result, information, question, specific_persona)
+        first_layer = self.first_layer(prep_result, research, question, specific_persona)
 
-        self.processing_fields['first_projection'] = f"COMPLETE, time taken: {round((time.time() - fp_time)/60, 2)}"
-        self.processing_fields['second_projection'] = "IN PROGRESS"
-        update_message = self.format_update()
-        self.send_message(self.processing_title, update_message, color=discord.Color.blue())
+        self.processing_fields['first_layer'] = f"COMPLETE, time taken: {round((time.time() - curr_time)/60, 2)}"
+        self.processing_fields['second_layer'] = "IN PROGRESS"
+        self.update_discord_status()
 
-        sp_time = time.time()
+        curr_time = time.time()
 
-        second_projection = netass.out_of_box(prep_result, first_projection, information, question, specific_persona)
+        second_layer = self.second_layer(prep_result, first_layer, research, question, specific_persona)
 
-        self.processing_fields['second_projection'] = f"COMPLETE, time taken: {round((time.time() - sp_time)/60, 2)}"
+        self.processing_fields['second_layer'] = f"COMPLETE, time taken: {round((time.time() - curr_time)/60, 2)}"
         self.processing_fields['finished_report'] = "IN PROGRESS"
-        update_message = self.format_update()
-        self.send_message(self.processing_title, update_message, color=discord.Color.blue())
-
-        finish_time = time.time()
+        self.update_discord_status()
 
         title = helpers.get_report_title(question)
-
-        report_path = self.create_report_docx(title, question, prep_result, first_projection, second_projection, information)
-
-        self.processing_fields['finished_report'] = f"COMPLETE, time taken: {round((time.time() - finish_time)/60, 2)}"
-        update_message = self.format_update()
-        self.send_message(self.processing_title, update_message, color=discord.Color.blue())
-
-        self.send_discord_message(title, f"Please view your completed report in the attached file.", report_path, color=discord.Color.green(), is_report=True)
-
+        report_path = self.create_report_docx(title, question, prep_result, first_layer, second_layer, research)
         
+        finish_time = time.time()
+        total_time = round((time.time() - finish_time)/60, 2)
+        
+        self.update_discord_status(to_delete=True) #delete the status msg since we don't need this anymore
+        self.send_discord_message(title, f"Please view your completed report in the attached file.", f"Your question: {question} took {total_time} to answer.", file_path=report_path, color=discord.Color.green())
+        
+        #update the user_records json with the report and the question that was asked TODO:
+        with self.user_records_lock:
+            user_records = None
+            with open("user_records/user_records.json", "r") as f:
+                user_records = json.load(f)
 
-    def format_update(self, other_notes: str = None):
+    def update_discord_status(self, other_notes: str = None, to_delete: bool = False):
         '''
-        Formats the update message for the discord bot.
-        '''
-
+        Updates the status in discord for a Ruby's current task
+        
+        ''' 
+        
+        if to_delete:
+            self.send_discord_message(None, None, to_delete=True)
+        
         update_message = ""
 
-        for field, value in self.processing_fields:
+        for field, value in self.processing_fields.items():
             update_message += f"{field}: {value}\n"
 
         #remove the last newlines
@@ -729,31 +738,12 @@ class DiscordRuby(Rubidium):
 
         if other_notes:
             update_message += f"\n\nOther Notes:\n{other_notes}"
-
-        return update_message
-
-
-    async def send_discord_message(self, message_title: str, message: str, file_path: str = None, color: discord.Color = discord.Color.yellow(), is_report: bool = False):
-        if is_report:
-            embed = discord.Embed(title=message_title, description=message, color=discord.Color.green())
-            file = discord.File(file_path)
-            
-            await channel.send(embed=embed, file=file)
-
-            return #early return because we have sent the file already. We are going to terminate after this.
-
-        if self.current_message == None:
-            #send a new message and then keep track of it
-            channel = self.discord_bot.get_channel(self.channel_id)
-            embed = discord.Embed(title=message_title, description=message, color=color)
-            message = await channel.send(embed=embed)
-
-            self.current_message = message
-        else:
-            #edit the current message
-            embed = discord.Embed(title=message_title, description=message, color=color)
-            await self.current_message.edit(embed=embed)
         
+        self.send_discord_message(self.processing_title, update_message, color=discord.Color.blue(), is_update=True)
+        
+
+    def send_discord_message(self, title: str, message: str, file_path: str = None, color: discord.Color = discord.Color.yellow(), is_update: bool = False, to_delete: bool = False):
+        self.discord_queue.put_nowait((title, message, file_path, color, is_update, to_delete))
 
 
 class ActorCriticRuby(Rubidium):
