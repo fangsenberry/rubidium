@@ -31,6 +31,7 @@ async def process_queue():
     while True:
         if not discord_queue.empty():
             title, msg, file_path, color, is_update, to_delete = await discord_queue.get()
+            
             if is_update:
                 asyncio.create_task(update_message(title, msg, color, to_delete))
             else: 

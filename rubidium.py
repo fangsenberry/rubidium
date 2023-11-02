@@ -673,7 +673,7 @@ class DiscordRuby(Rubidium):
 
         research = self.get_research(question)
         
-        self.processing_fields['research'] = f"COMPLETE, time taken: {round((time.time() - curr_time)/60, 2)}"
+        self.processing_fields['research'] = f"COMPLETE, time taken: {round((time.time() - curr_time)/60, 2)} min"
         self.processing_fields['preparation'] = "IN PROGRESS"
         self.update_discord_status()
 
@@ -684,7 +684,7 @@ class DiscordRuby(Rubidium):
 
         prep_result = self.na_prep(research, question, specific_persona)
 
-        self.processing_fields['preparation'] = f"COMPLETE, time taken: {round((time.time() - curr_time)/60, 2)}"
+        self.processing_fields['preparation'] = f"COMPLETE, time taken: {round((time.time() - curr_time)/60, 2)} min"
         self.processing_fields['first_layer'] = "IN PROGRESS"
         self.update_discord_status()
 
@@ -692,7 +692,7 @@ class DiscordRuby(Rubidium):
 
         first_layer = self.first_layer(prep_result, research, question, specific_persona)
 
-        self.processing_fields['first_layer'] = f"COMPLETE, time taken: {round((time.time() - curr_time)/60, 2)}"
+        self.processing_fields['first_layer'] = f"COMPLETE, time taken: {round((time.time() - curr_time)/60, 2)} min"
         self.processing_fields['second_layer'] = "IN PROGRESS"
         self.update_discord_status()
 
@@ -700,18 +700,18 @@ class DiscordRuby(Rubidium):
 
         second_layer = self.second_layer(prep_result, first_layer, research, question, specific_persona)
 
-        self.processing_fields['second_layer'] = f"COMPLETE, time taken: {round((time.time() - curr_time)/60, 2)}"
+        self.processing_fields['second_layer'] = f"COMPLETE, time taken: {round((time.time() - curr_time)/60, 2)} min"
         self.processing_fields['finished_report'] = "IN PROGRESS"
         self.update_discord_status()
 
-        title = helpers.get_report_title(question)
+        title = self.get_title(question)
         report_path = self.create_report_docx(title, question, prep_result, first_layer, second_layer, research)
         
         finish_time = time.time()
         total_time = round((time.time() - finish_time)/60, 2)
         
         self.update_discord_status(to_delete=True) #delete the status msg since we don't need this anymore
-        self.send_discord_message(title, f"Please view your completed report in the attached file.", f"Your question: {question} took {total_time} to answer.", file_path=report_path, color=discord.Color.green())
+        self.send_discord_message(title, f"Please view your completed report in the attached file. Your question: {question} took {total_time} to answer.", file_path=report_path, color=discord.Color.green())
         
         #update the user_records json with the report and the question that was asked TODO:
         with self.user_records_lock:
@@ -726,7 +726,7 @@ class DiscordRuby(Rubidium):
         ''' 
         
         if to_delete:
-            self.send_discord_message(None, None, to_delete=True)
+            self.send_discord_message(None, None, is_update=True, to_delete=True)
         
         update_message = ""
 
