@@ -21,7 +21,8 @@ user_records_lock = threading.Lock()
 ruby_lock = threading.Lock() #this just keeps track of whether we have a running instance or not
 ruby_instance = None
 
-CHANNEL_ID = 1157458682280419380
+R2_CHANNEL_ID = 1157458682280419380
+ADMIN_CHANNEL_ID = 1157458682280419380
 FILEDUMP_CHANNEL_ID = 1167234435104649256
 
 status_msg_id = None
