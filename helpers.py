@@ -13,6 +13,9 @@ import docx
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.shared import Pt, Inches
 
+#soem globals for us
+CHOSEN_MODEL = "gpt-4-1106-preview"
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 def get_num_tokens(input, model="gpt-4"):
     '''
@@ -152,8 +155,6 @@ Helper function that our parent thread points to that will execute the api call 
     None (the result is stored in the result_container)
 '''    
 def summarise_helper(corpus):
-    openai.api_key = os.getenv("OPENAI_API_KEY")
-
     start_prompt = f"You are SummarizerGPT. You create summaries that keep all the information from the original text. You must keep all numbers and statistics from the original text. You will provide the summary in succint bullet points. For longer inputs, summarise the text into more bullet points. You will be given a information, and you will give me a bulleted point summary of that information."
     
     ask_prompt = f"""Summarise the following text for me into a list of bulleted points.
@@ -164,29 +165,7 @@ def summarise_helper(corpus):
 
     ask_prompt = start_prompt + "\n" + ask_prompt
 
-    try_count = 1
-    while try_count <= 10:
-        try:
-            response = openai.ChatCompletion.create(
-                model="gpt-4",
-                messages=[
-                    {"role": "system", "content": start_prompt},
-                    {"role": "user", "content": ask_prompt}
-                ]
-            )
-            break
-        except Exception as e:
-            rest_time = 10 * try_count
-            print(f"Summarisation Thread Encountered Error: {e}. Retrying in {rest_time} seconds...")
-            time.sleep(rest_time)
-            try_count += 1
-            print(f"Retrying summarisation...")
-
-    if try_count == 10:
-        print("Summarisation Thread Failed. Returning empty string.")
-        return ""
-
-    return response.choices[0].message.content
+    return call_gpt_single(start_prompt, ask_prompt, function_name="summarise_helper")
 
 def vectorize_text(input):
     # print("vectorizing text")
@@ -222,12 +201,12 @@ A wrapper for all of our API calls to GPT since we want to handle errors. This i
     system_init [string] : system setting for GPT, what persona it should use
     prompt [string] : the prompt for GPT
     name [string] : the name of the calling function that will be printed to stdout if an error is being thrown and we need to retry
-    try_limit [int] (defaults to 10) : 
+    try_limit [int] (defaults to 10) : how many times we try
 
 @returns:
     result [string] : the returned result from the LLM
 '''
-def call_gpt_single(system_init: str, prompt: str, function_name: str = "no name func", try_limit: int = 10, chosen_model: str = "gpt-4", temperature: int = 1, stream: bool = False, to_print: bool = True):
+def call_gpt_single(system_init: str, prompt: str, function_name: str = "no name func", try_limit: int = 10, chosen_model: str = CHOSEN_MODEL, temperature: int = 1, stream: bool = False, to_print: bool = True):
     try_count = 1
     while try_count <= try_limit:
         try:
@@ -271,7 +250,7 @@ Same as the above but we take the messages as a param, so its the role of the ca
 
 @returns:
 '''
-def call_gpt_multi(messages, try_limit=10, function_name: str = "default", chosen_model="gpt-4", to_print: bool = True):
+def call_gpt_multi(messages, try_limit=10, function_name: str = "default", chosen_model: str = CHOSEN_MODEL, to_print: bool = True):
 
     try_count = 1
     while try_count <= try_limit:
