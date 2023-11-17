@@ -751,8 +751,8 @@ class ActorCriticRuby(Rubidium):
     This is an Actor Double Critic implementation, where we have both Carbon and Ruby criticising Ruby's actions.
     
     '''
-    def __init__(self, recurrence_count: int = 3, persona: str = None):
-        super().__init__(persona)
+    def __init__(self, recurrence_count: int = 3):
+        super().__init__()
 
         self.recurrence_count = recurrence_count
         
@@ -772,7 +772,7 @@ class ActorCriticRuby(Rubidium):
         
         #the role of the critic is to improve policy?
         self.critic_system_init = f"""
-        You are part of a Net Assessment Team that acts as an Actor-Critic pair, borrowing core concepts from the framework used in reinforcment learning, but with a few more layers of abstraction. You are the Critic in an Actor-Critic Pair. You have been given the output of the Actor, and you should criticise the Actor's output with a set of provided criteria. You MUST focus on actionable and tangible criticism, you cannot provide vague, banal generalities because the Actor will not be able to improve from them.
+        You are part of a Net Assessment Team that acts as an Actor-Critic pair, borrowing core concepts from the framework used in reinforcement learning, but with a few more layers of abstraction. You are the Critic in an Actor-Critic Pair. You have been given the output of the Actor, and you should criticise the Actor's output with a set of provided criteria. You MUST focus on actionable and tangible criticism, you cannot provide vague, banal generalities because the Actor will not be able to improve from them.
         
         Here is a reference to what Net Assessment is: Net Assessment is a strategic evaluation framework that carries considerable significance in the field of geopolitical and military analysis. It was pioneered by the Office of Net Assessment (ONA) in the United States Department of Defense in 1973, reflecting its rich historical context, but its utility today is felt beyond the shores of a single nation, offering globally pertinent insights for any entity faced with complex geopolitical dynamics. 
 
@@ -815,6 +815,81 @@ class ActorCriticRuby(Rubidium):
         Therefore, a comprehensive application of Force Catalysts as part of the Net Assessment framework allows for a more nuanced understanding of the intangible elements that drive geopolitical and military dynamics. These catalysts provide critical insights into the evaluation and prediction of future trends, conflict outcomes, and military performance by examining the interplay of leadership risk propensities, societal structures, technological advancements, and more. Understanding Force Catalysts enables a more holistic approach to geopolitical analysis, factoring in complex, intangible elements alongside conventionally quantifiable indicators of state power. The framework appreciates the fact that the strategic behavior of states is driven not merely by their military and economic capabilities but by the interactions among these multifaceted catalysts.
         """
         
+        self.constraints_frictions_description = f"""
+        Constraints are endemic to any analytical or operational endeavor, acting as limitations or boundaries that shape the outcome and processes of activities across a multitude of domains. These impediments or boundary conditions come in various forms and are instrumental in dictating the parameters within which entities operate. These limitations are not confined to shortages in resources but extend to legal and regulatory frameworks, organizational capabilities, cognitive limitations, societal norms, and technological feasibilities. Constraints can be explicit or implicit, reflecting both tangible barriers such as a finite budget and intangible ones like intellectual property rights or cultural taboos.
+
+        Expanding further, constraints encompass several dimensions:
+        1. Epistemic Constraints: These relate to the limitations on what we can know. They include the availability, reliability, and validity of information, intellectual property issues, and barriers to knowledge transfer.
+        2. Resource Constraints: These refer to the physical, financial, and human resources that may restrict an entity's ability to perform its functions.
+        3. Temporal Constraints: Time-related limitations that affect planning and decision-making horizons, as well as strategic foresight capacity.
+        4. Spatial Constraints: Geographical factors including the physical environment, territory, and infrastructure that limit the operational theater.
+        5. Cognitive Constraints: The psychological limitations of humans, such as biases, processing capacity, and heuristics that influence understanding and decision-making.
+        6. Regulatory and Legal Constraints: Laws, regulations, and institutional mechanisms that establish the rules within which organizations and states must operate.
+        7. Social and Cultural Constraints: Norms, values, and customs that can limit choices or prescribe certain behaviors, often tacit and deeply embedded in societies.
+
+        Frictions, in a generalizable sense, comprise the diverse set of unpredictable and often uncontrollable variables that may interfere with the realization of planned processes or the attainment of objectives. These unpredictable elements constitute the dynamic interplay of factors that, individually or in combination, can influence, alter, or disrupt expected outcomes.
+
+        Friction incorporates several facets:
+        1. Environmental Friction: Natural or environmental factors that unpredictably interfere with operations—whether it's weather conditions impacting logistics or natural disasters altering economic landscapes.
+        2. Technical Friction: Failures or unforeseen complications in technology and machinery that hamper efficiency or effectiveness.
+        3. Human Friction: Human factors including individual or collective behavior, reaction under stress, errors of judgment, or interpersonal conflicts.
+        4. Organizational Friction: Inefficiencies, miscommunications, or resistance within a hierarchy or group that impede fluid function.
+        5. Informational Friction: Misinformation, disinformation, or communication gaps that create confusion and hinder coordination.
+        6. Political Friction: Unexpected changes in political landscapes or decisions that alter the strategic environment.
+        7. Economic Friction: Market volatility, economic crises, and fluctuations that can unpredictably impact resource availability and allocation.
+
+        Importance to Net Assessment:
+
+        In the process of Net Assessment, the identification and understanding of Constraints and Frictions is pivotal. These two factors form the substratum on which realistic assessments are structured. Constraints and Frictions help us recognize the bounding conditions of an entity's strategic performance and the uncertainties that could influence its planned paths. By integrating a thorough appraisal of both Constraints and Frictions, Net Assessment enables a multi-faceted evaluation that accounts for the complex interplay of diverse factors, thereby fostering more robust, adaptable, and future-proof strategic initiatives. The thorough appreciation of Constraints and Frictions transcends mere recognition and incorporates proactive planning—thus enabling decision-makers to navigate the intricate web of determinants that dictate the geopolitical and strategic labors of tomorrow. They are not merely hurdles to be acknowledged but instrumental tools in the crafting of strategic resilience and adaptive foresight
+        """
+        
+        self.alliances_laws_description = f"""
+        Alliances
+
+        Alliances are formalized relationships forged between two or more entities, ranging from sovereign nation-states to organizations, corporations, and other establishments, with the primary intent of advancing mutual interests, achieving common goals, and enhancing collective capacities. Although traditionally associated with military coordination and strategic defense, alliances encapsulate a much broader spectrum of cooperative engagements, including economic partnerships, scientific collaborations, and environmental agreements, among others.
+
+        Key characteristics of alliances include:
+
+        1. Contractual Nature: Alliances are typically entrenched within written agreements or treaties that stipulate the commitments, expectations, and frameworks of cooperation among the parties, ensuring clarity and binding authority over the terms of collaboration.
+        2. Mutual Benefit: An essential tenet of alliances is reciprocity, wherein each party expects to derive advantages, whether immediate or long-term, that justify their contribution and involvement in the alliance.
+        3. Resource Sharing: By pooling resources such as knowledge, technology, finances, or personnel, alliances foster a synergistic approach to addressing challenges or capitalizing on opportunities that might be beyond the scope of single entities.
+        4. Diplomatic Influence: Alliances exert influence on the international stage, often swaying diplomatic negotiations and collective actions, and serving as a mechanism to enhance the global stature and reach of their members.
+        5. Strategic Deterrence: Especially in security-oriented alliances, the combined capabilities of members serve as a deterrent against aggressors, thus underpinning regional or global stability.
+        6. Trust and Reliability: The effectiveness of an alliance hinges on the trustworthiness and reliability of its members to fulfill their obligations, particularly in times of need or crisis.
+        7. Adaptability: Alliances must remain adaptable to evolving circumstances, requiring periodic renegotiation and restructuring to remain relevant and effective in a dynamic environment.
+        8. Challenges: Conflicting interests, asymmetry in power dynamics, and changing geopolitical landscapes pose significant challenges to the longevity and cohesion of alliances.
+
+        Laws
+
+        Laws, in their most expansive sense, constitute the codified rules and principles that govern the conduct of individuals, entities, and states within a given framework or system. These laws are established to maintain order, uphold justice, mitigate conflicts, and protect the rights and interests of stakeholders. They emanate from an intricate network of legislations, regulations, conventions, and mutual agreements and encapsulate both domestic and international contexts.
+
+        The essence of laws includes:
+        1. Regulatory Framework: Laws provide the regulatory structure within which entities must operate, delineating permissible actions and sanctions for non-compliance, thus fostering predictability and stability.
+        2. Conflict Resolution: They serve as the formal mechanism for resolving disputes objectively, based on established criteria and principles rather than arbitrary or biased judgments.
+        3. Ethical and Moral Standards: Laws often reflect the ethical and moral standards of a society or community, translating these values into enforceable norms.
+        4. Rights Protection: By establishing legal rights and duties, laws enable the protection of individual, group, and state interests against infringement or harm.
+        5. Accountability: They hold actors accountable for their actions, ensuring that violations are addressed and appropriate remedial actions or penalties are applied.
+        6. Dynamic Evolution: Laws are dynamic, evolving with social, technological, and political developments to remain congruent with contemporary issues and challenges.
+        7. International Order: International laws, including those governing conflicts, facilitate a cooperative international order, provide frameworks for peaceful coexistence, and manage relations between nation-states.
+        8. Implementation Challenges: The application and enforcement of laws can be complex, contingent on effective judicial and administrative systems and the willing adherence by the relevant actors.
+
+        Importance to Net Assessment:
+
+        Understanding the workings of Alliances and Laws is pivotal to the process of Net Assessment. Alliances not only influence strategic decisions and power equations but also reflect the collective resolve and capability to address potential threats or to leverage opportunities in pursuit of shared objectives. They can both enable and constrain actions, based on their nature and dynamics, representing key variables in any comprehensive strategic analysis.
+
+        Laws shape the permissible conduct within and between entities, providing a basis upon which scenarios are planned and actions are justified or criticized. They inform the risk calculus of operational strategies, help anticipate responses to various initiatives, and offer a frame to reconcile international objectives with compliance to normative standards.
+
+        A deep and nuanced understanding of Alliances and Laws, with their multifaceted implications, enables Net Assessors to predict the behavior of actors within the global system, discern potential fault lines or cooperative potentials, and advise on plausible strategic postures. They convey the operational environment’s complexity, which is integral to comprehensive assessments and the formulation of long-term strategic visions.
+        """
+        
+    # def net_assess(self, question):
+    #     '''
+    #     The only reason why we are overloading this is because in the first_layer now we are no longer passing in the entire information corpus.
+    #     '''
+        
+    #     pass
+    #THIS IS TO BE IMPLEMENTED BUT FIRST WE NEED TO MAKE SURE WE HAVE A HIGHER ORDER PLANNING STEP TO RECURISIVELY GO BACK TO
+        
     def get_material_facts(self, information, question, specific_persona):
         base = super().get_material_facts(information, question, specific_persona)
         
@@ -824,7 +899,7 @@ class ActorCriticRuby(Rubidium):
             f.write(base)
         
         for i in tqdm(range(self.recurrence_count)):
-            print(f"Recurrence Material Facts {i+1}")    
+            print(f"Recurrence Material Facts {i}")    
             critic_prompt = f"""
             Your goal as the Critic is to provide criticism that the Actor will use to update the current piece of analysis that they are working on. You have also been given the raw information that the Actor used to create this analysis, as well as a description of what this particular part of the analysis is supposed to be. You should follow the following metrics when criticising the Actor's output:
             
@@ -895,11 +970,11 @@ class ActorCriticRuby(Rubidium):
         
         to_criticise = base #just a variable we can update
         
-        with open("first_fc.txt", "w") as f:
-            f.write(base)
+        # with open("first_fc.txt", "w") as f:
+            # f.write(base)
         
         for i in tqdm(range(self.recurrence_count)):
-            print(f"Recurrence Force Catalysts {i+1}")    
+            print(f"Recurrence Force Catalysts {i}")    
             critic_prompt = f"""
             Force Catalysts Criteria:
 
@@ -953,7 +1028,7 @@ class ActorCriticRuby(Rubidium):
             
             {self.force_catalysts_description}
             
-            Given the provided information and question, your goal is to identiify and explain, in depth, about the Force Catalysts that are relevant to the question and situation, and return them. Remember that your output is the content covering the Force Catalysts. The Critic's assessment is criticism that you must take into account, but you don't need to mention the points that the Critic has raised; you simply need to listen to the feedback and return the improved output. You should not make any statements as to how you are using Force Catalysts, but rather you should just do it, and identify what the Force Catalysts are. You MUST MAKE SURE that you retain all statistical points and relevant technical details. If there are any pieces of data or technical information represented in the text, they must be represented identically in your response. Generally speaking, you should be expanding and adjusting your last iteration, not decreasing or minimizing it. You should NEVER remove detail from the original piece of text. You should always be as verbose as possible. You must retain all numbers and/or statistics, and detail from the information that you consider relevant. You must also keep all names. You MUST NOT attempt to answer the question. This phase is the preparation (Force Catalysts) phase, and there are many more components before the answer is ready to be determined.
+            Given the provided information and question, your goal is to identify and explain, in depth, about the Force Catalysts that are relevant to the question and situation, and return them. Remember that your output is the content covering the Force Catalysts. The Critic's assessment is criticism that you must take into account, but you don't need to mention the points that the Critic has raised; you simply need to listen to the feedback and return the improved output. You should not make any statements as to how you are using Force Catalysts, but rather you should just do it, and identify what the Force Catalysts are. You MUST MAKE SURE that you retain all statistical points and relevant technical details. If there are any pieces of data or technical information represented in the text, they must be represented identically in your response. Generally speaking, you should be expanding and adjusting your last iteration, not decreasing or minimizing it. You should NEVER remove detail from the original piece of text. You should always be as verbose as possible. You must retain all numbers and/or statistics, and detail from the information that you consider relevant. You must also keep all names. You MUST NOT attempt to answer the question. This phase is the preparation (Force Catalysts) phase, and there are many more components before the answer is ready to be determined.
             
             Information:
             {information}
@@ -972,4 +1047,566 @@ class ActorCriticRuby(Rubidium):
             
         return to_criticise
     
+    def get_constraints_friction(self, information, question, specific_persona):
+        base = super().get_material_facts(information, question, specific_persona)
+        
+        to_criticise = base
+        
+        for i in tqdm(range(self.recurrence_count)):
+            print(f"Recurrence Constraints and Friction {i}")
+            critic_prompt = f"""
+            Constraints and Frictions Criteria:
+            
+            1. Precision and Specificity:
+                a. Have Constraints been specified with rigorous accuracy? Does the analysis list precise limitations such as data gaps, resource shortages, and access issues? Detail any areas where precision is lacking.
+                b. Are the identified Frictions concrete, and do they relate to specific variables that could influence outcomes in unexpected ways? Provide examples of vague frictions and suggestions to clarify them.
+                c. Ensure that the description of Constraints and Frictions is explicit, avoiding ambiguity, and is based on identifiable factors rather than assumptions.
+
+            2. Contextual Relevance:
+                a. Are the Constraints and Frictions relevant to the geopolitical or strategic context under evaluation? If they appear out of context, provide guidance on how to align them with the core issues.
+                b. Does the assessment recognize Frictions stemming from political, social, or technological changes? Encourage consideration of contemporary challenges and opportunities specific to the case study.
+
+            3. Analytical Depth:
+                a. Evaluate the depth with which Constra`nts and Frictions are addressed. Does the analysis delve into underlying causes and potential impacts on the geopolitical or military landscape?
+                b. Look for analysis of how Constraints may lead to inaccurate or incomplete assessments and how they might be mitigated.
+                c. Assess whether the analysis acknowledges how Frictions can modify initial plans and strategies, necessitating adaptive or contingency approaches.
+
+            4. Evidence and Example Integration:
+                a. Are there concrete examples provided to illustrate each listed Constraint and Friction? Recommend the inclusion of case studies or historical precedents that demonstrate similar issues.
+                b. Ensure that each Constraint and Friction is supported by evidence or data. If assertions are unsubstantiated, point out these areas and suggest avenues for corroboration.
+
+            5. Temporal Dynamics:
+                a. Does the analysis account for the temporal dimension of Constraints and Frictions, considering past patterns and future projections? Highlight any omissions or areas where a broader timeline could be beneficial.
+                b. Propose consideration of how Constraints and Frictions might evolve, encouraging the analyst to factor in dynamic geopolitical shifts and technological advancements that could affect future circumstances.
+
+            6. Probabilistic and Scenario-based Approaches:
+                a. Assess whether the analysis applies a probabilistic view of outcomes to reflect the uncertainties introduced by Constraints and Frictions.
+                b. Encourage the formulation of multiple scenarios to capture different potential impacts of Constraints and Frictions, promoting resilience in the face of unpredictable events.
+
+            7. Iteration and Feedback:
+                a. Verify if the assessment is marked by continuous iteration, allowing for the refining of Constraints and Frictions as new information emerges.
+                b. Recommend the establishment of feedback mechanisms that integrate new data and insights into the ongoing assessment of Constraints and Frictions.
+            
+            {self.constraints_frictions_description}
+            
+            For each of the criteria above, you should explain where the Actor has gone wrong, as well as explain with a general guideline how he could improve. Remember that is the role of the Critic to provide feedback, but not to act on that feedback. You MUST not be making any points for the Actor, but focus on CRITICISING the Actor's work in order for him to make it better. Therefore, your responses should be criticism, and it is up to the Actor to decide the policy / steps forward that he takes.
+            
+            The piece of analysis that you need to criticise has been given below:
+            
+            {to_criticise}
+            
+            The Actor was using the following information to create this analysis:
+            {information}
+            
+            The Actor was developing their Constraints and Frictions analysis with reference to this question:
+            {question}
+            """
+            
+            feedback = helpers.call_gpt_single(self.critic_system_init, critic_prompt, function_name=f"get_constraints_friction (critic) iteration {i}")
+            
+            actor_prompt = f"""
+            Your goal as the Actor is to work on criticism that the Critic has provided you with, and update the current content that you are working on. Here was the content you gave for the previous iteration.
+            
+            You are working on the Constraints and Frictions, the third step of the Net Assessment Framework. This is a brief description of what Force Catalysts are:
+            
+            {self.constraints_frictions_description}
+            
+            Given the provided information and question, your goal is to identify and explain, in depth, about the Constraints and Frictions that are relevant to the question and situation, and return them. Remember that your output is the content covering the Constraints and Frictions. The Critic's assessment is criticism that you must take into account, but you don't need to mention the points that the Critic has raised; you simply need to listen to the feedback and return the improved output. You should not make any statements as to how you are using Constraints and Frictions, but rather you should just do it, and identify what the Constraints and Frictions are. You MUST MAKE SURE that you retain all statistical points and relevant technical details. If there are any pieces of data or technical information represented in the text, they must be represented identically in your response. Generally speaking, you should be expanding and adjusting your last iteration, not decreasing or minimizing it. You should NEVER remove detail from the original piece of text. You should always be as verbose as possible. You must retain all numbers and/or statistics, and detail from the information that you consider relevant. You must also keep all names. You MUST NOT attempt to answer the question. This phase is the preparation (Constraints and Frictions) phase, and there are many more components before the answer is ready to be determined.
+            
+            Information:
+            {information}
+            
+            Question:
+            {question}
+            
+            And here is the feedback that you have been given for your most recent iteration:
+            {feedback}
+            """
+            
+            to_criticise = helpers.call_gpt_single(self.actor_system_init, actor_prompt, function_name=f"get_constraints_friction (actor) iteration {i}")
+            
+        return to_criticise
+            
+    def get_alliances_laws(self, information, question, specific_persona):
+        base = super().get_alliance_law(information, question, specific_persona)
+        
+        to_criticise = base
+        
+        for i in tqdm(range(self.recurrence_count)):
+            print(f"Recurrence Alliances and Laws {i}")
+            critic_prompt = f"""
+            Criteria for Evaluating Alliances:
+
+            1. Strategic Justification:
+            a. Is the strategic rationale for forming the alliance explicit and robustly justified?
+            b. Have the geopolitical, economic, and security objectives been clearly defined and validated with supporting analysis?
+
+            2. Organizational Framework:
+            a. Are roles, responsibilities, and governance structures within the alliance well-specified and effective?
+            b. Is there evidence of equitable resource sharing and benefit distribution among members?
+
+            3. Goal Alignment:
+            a. How well do the member states' individual strategies and intentions align with the collective goals of the alliance?
+            b. Is there an ongoing process to monitor and realign goals as geopolitical dynamics evolve?
+
+            4. Unified Diplomatic Action:
+            a. Does the alliance demonstrate a unified stance in international forums and negotiations?
+            b. Are there mechanisms in place to manage dissent and ensure coherence in diplomatic efforts?
+
+            5. Economic Integration:
+            a. Have the economic gains from the alliance been quantified?
+            b. Are there tangible examples of mutual economic growth facilitated by the alliance?
+
+            6. Technological and Resource Equity:
+            a. Is there demonstrable technological exchange and resource sharing that enhances the capabilities of all members?
+            b. What measures are in place to address disparities in technological advancement or resource access among alliance members?
+
+            7. Cultural and Ideological Synergy:
+            a. To what extent do cultural and ideological differences impact the alliance's cohesion?
+            b. Are there frameworks to incorporate diverse cultural and ideological perspectives positively?
+
+            8. Evolution and Reassessment:
+            a. Is there a systematic approach for the periodic reassessment and evolution of the alliance structure and objectives?
+            b. How has the alliance adapted in response to significant geopolitical changes or challenges?
+
+            9. Crisis and Contingency Planning:
+            a. How effective is the alliance's collective response to crises?
+            b. Are there defined protocols that guide the alliance's actions during emergencies?
+
+            10. Legal Conformity and Ethics:
+                a. Does the alliance comply with relevant international laws and norms?
+                b. Are ethical considerations embedded in the alliance's operations and collaborations?
+
+            II. Laws
+
+            Criteria for Evaluating Laws:
+
+            1. Legislative Precision:
+            a. Are laws articulated with sufficient clarity and detail to guide behavior and support enforcement?
+            b. Does legal documentation avoid ambiguous language that could lead to varied interpretations?
+
+            2. Equitability and Fairness:
+            a. Are laws applied equally to all actors, without unfair discrimination or favoritism?
+            b. Is there evidence of laws upholding justice across different societal sectors and demographics?
+
+            3. Prevention and Resolution of Disputes:
+            a. Do legal systems effectively prevent conflicts through proactive measures?
+            b. Are there established and efficient procedures for dispute resolution?
+
+            4. Ethical Integrity:
+            a. How well do the laws reflect the prevailing ethical standards and moral values of the relevant societies or international community?
+            b. Is ethical integrity maintained in both the creation and application of laws?
+
+            5. Protection of Rights:
+            a. Are individual and collective rights explicitly protected and promoted by laws?
+            b. Is there a mechanism to review and rectify any instances of rights infringement?
+
+            6. Accountability and Proportionality:
+            a. Do laws ensure that accountability is enforced fairly and consequences are proportionate to the actions taken?
+            b. Are there clear guidelines for the rectification of legal breaches?
+
+            7. Dynamic Responsiveness:
+            a. Are laws revisited and revised to reflect the evolving needs and challenges of society, technology, and geopolitics?
+            b. Is there a process for law reform that involves a broad spectrum of stakeholders?
+
+            8. Enforceability and Practicality:
+            a. Are there adequate and effective judicial and administrative bodies responsible for the implementation of laws?
+            b. Is there an evaluation of the jurisdiction's capacity to enforce laws?
+
+            9. Compliance and Sanctions:
+            a. What measures ensure adherence to laws and deter violations?
+            b. Are sanctioning mechanisms available, fair, and effectively implemented?
+
+            Importance to Net Assessment:
+
+            A. Integration in Analysis:
+            - Assess how alliances and laws have been woven into the broader context of the net assessment.
+            - Verify that these aspects are not treated in isolation but in conjunction with other elements of the strategic environment.
+
+            B. Influence on Strategic Scenarios:
+            - Consider whether the impact of alliances and laws on future scenarios has been considered.
+            - Determine how changes in alliances or legal frameworks might alter predicted outcomes.
+
+            C. Operational Relevance:
+            - Identify if the net assessment accurately reflects the operational impact of alliances and laws on the capabilities and actions of actors in the global arena.
+            - Ensure that strategic advice reflects the prevailing alliance dynamics and legal considerations.
+
+            By adhering to these detailed criteria, Net Assessors can more effectively evaluate and improve upon the Alliances and Laws components within their analyses, ensuring a deeper and more operationally relevant understanding of these structures' role in shaping the geopolitical landscape.
+            
+            {self.constraints_frictions_description}
+            
+            For each of the criteria above, you should explain where the Actor has gone wrong, as well as explain with a general guideline how he could improve. Remember that is the role of the Critic to provide feedback, but not to act on that feedback. You MUST not be making any points for the Actor, but focus on CRITICISING the Actor's work in order for him to make it better. Therefore, your responses should be criticism, and it is up to the Actor to decide the policy / steps forward that he takes.
+            
+            The piece of analysis that you need to criticise has been given below:
+            
+            {to_criticise}
+            
+            The Actor was using the following information to create this analysis:
+            {information}
+            
+            The Actor was developing their Constraints and Frictions analysis with reference to this question:
+            {question}
+            """
+        
+            
+            feedback = helpers.call_gpt_single(self.critic_system_init, critic_prompt, function_name=f"get_constraints_friction (critic) iteration {i}")
+            
+            actor_prompt = f"""
+            Your goal as the Actor is to work on criticism that the Critic has provided you with, and update the current content that you are working on. Here was the content you gave for the previous iteration.
+            
+            You are working on the Alliances and Laws, the fourth step of the Net Assessment Framework. This is a brief description of what Alliances and Laws in the context of Net Assessment are:
+            
+            {self.constraints_frictions_description}
+            
+            Given the provided information and question, your goal is to identify and explain, in depth, about the Alliances and Laws that are relevant to the question and situation, and return them. Remember that your output is the content covering the Alliances and Laws. The Critic's assessment is criticism that you must take into account, but you don't need to mention the points that the Critic has raised; you simply need to listen to the feedback and return the improved output. You should not make any statements as to how you are using Alliances and Laws, but rather you should just do it, and identify what the Alliances and Laws are. You MUST MAKE SURE that you retain all statistical points and relevant technical details. If there are any pieces of data or technical information represented in the text, they must be represented identically in your response. Generally speaking, you should be expanding and adjusting your last iteration, not decreasing or minimizing it. You should NEVER remove detail from the original piece of text. You should always be as verbose as possible. You must retain all numbers and/or statistics, and detail from the information that you consider relevant. You must also keep all names. You MUST NOT attempt to answer the question. This phase is the preparation (Alliances and Laws) phase, and there are many more components before the answer is ready to be determined.
+            
+            Information:
+            {information}
+            
+            Question:
+            {question}
+            
+            And here is the feedback that you have been given for your most recent iteration:
+            {feedback}
+            """
+            
+            to_criticise = helpers.call_gpt_single(self.actor_system_init, actor_prompt, function_name=f"get_constraints_friction (actor) iteration {i}")
+            
+        return to_criticise
+     
+    def infer_value(self, question):
+        '''
+        This function is unique to AC for now but will be implemented for regular Ruby. It will basically infer what is most beneficial for the user in terms of tangible benefits and actionable insights
+        '''
+        
+        prompt = f"""
+        I will give you a Net Assessment Query that the user has provided below. I want you to come up with a set of dynamic criteria that specifically pertains to this question. The motivation behind coming up with this set of dynamic criteria is that an analyst is going to take this question and create an analytical report out of this question. Therefore, before we start, we should ask ourselves the following guiding questions:
+        
+        1. What is the asker of the question looking for?
+        2. Has the asker of the question provided context on why they are asking this question? Otherwise, can we infer, for a general case, why someone would ask this question?
+        3. (IMPORTANT) What kind of actionable insights and tangible benefits should the analyst provide (with respect to the question) that would be most beneficial to the asker of the question? Think about this from the perspective of a client seeking a solution. They should not need to do further work on the report that the analyst has provided them. The analyst should not be asking them to make decisions, but rather recommending those decisions themselves, and justifying them extremely thoroughly. Therefore, you should provide the criteria for what kind of insights should the analyst be providing?
+        
+        Here is a sample set of criteria that you can base your format on. The analyst is using this objective, context independent set of criteria to guide his building of the final analysis. But of course, your criteria should be dynamic and specific to the question.
+        
+        Criteria for Evaluating a First Layer Projection:
+
+            1. Accuracy:
+                a. Has the Actors considered all possibilities and relevant information?
+                b. Has he misintepreted any information? If so, how has this information made his analysis skewed, which information has he misinterpreted, and how can he adjust this?
+            2. Technical Detail:
+                a. Are the Actor's points technically detailed enough to express their points?
+                b. Do they include all information necessary?
+                c. Are they assuming that the reader inherently understands some points? How could they express themselves clearer?
+            3. Logical Coherence:
+                a. Are all of the points that the Actor is making syntactically consistent? If not, point of which points are not syntactically consistent, and explain to him how he could improve them.
+                b. Does the Actor's analysis make sense? Does his entire argument align? Are there any parts that would be considered incoherent?
+                c. Is he making any sweeping statements or slippery slope arguments?
+                d. Is he making any jumps in logic without providing ample justification for his conclusions? Which parts is he not linking up? How can he improve?
+            4. Analytical Depth:
+                a. Do the Actor's points have enough depth? Are they considering all of the implications of the information that has been presented to him? Or is just simply finding the easiest explanation? (it is fine if the correct explanation is the easiest one, but that should also take into account all the relevant factors.)
+                b. The Actor needs to provide enough detail and explanation so that an unseasoned reader unfamiliar with the topic would be able to understand it. Has he accomplished this? Where can he be clearer or more detailed? Focus on allowing an unseasoned reader to understand the projection/analysis that the Actor has presented.
+                c. Does the Actor's analysis show sufficient understanding of the geopolitical complexities? Are there perspectives that would be relevant but he has not considered?
+            5. Biases:
+                a. Is the Actor's work free from inherited bias from the information that he has been presented? Is he presenting a completely objective analysis of the facts that are laid in front of him?
+                b. If there are any biases, what are they, and how can the Actor correct them?
+            6. Usage of Evidence and NA prep points:
+                a. Has the Actor sufficiently justified the points that he has presented or asserted? Is he making any logical jumps based on information that he has not presented? If the are points that he is making without proper substantiation, you should point these out. You must also take care to not overdo this point, since there are logical conclusions that can follow from information that has been presented, and you should not be criticising the Actor for making these logical conclusions. This largely pertains to the Actor making assertions without proper justification, or assuming that certain points are obvous to the reader without elucidating them.
+            7. Concluding Impacts (IMPORTANT):
+                a. Has the analyst answering the question in its entirety? Has the question, every single facet, been answering in its entirety?
+                b. How could the Actor better answer the question? How could he better answer the question, keeping in mind that his analysis is critical when presenting it to a client whose goal is to make a decision based on the analysis that the Actor has presented?
+            8. Actionable Insights and Tangible Benefits (MOST IMPORTANT):
+                a. The point of an analysis is not to provide an answer with a layer of abstraction on top of actionable and tangible insights. To be clear, instead of saying something like: "Based on the available data and points that we have covered above, you should look towards near, medium and far term supply chain protection policies." You should be saying something like: "Based on the available data and points that we have covered above, it is most likely that [A] will happen in the next 3-4 months. This is because [explanation]. This means that you have 1-2 months to look for a solution for [B].". Or, if the question is more general and related to a projection, the answer should give a specific, defined diagnosis on WHAT will happen and WHEN it will happen. For example, "[A] will happen in [TIMEFRAME], because [REASONS]. These are the potential cascading impacts [CASCADING IMPACTS]. In other words, the Actor needs to be making decisions on the information he has been presented in the research as well as the NA preparation about the future, and answering the question. The asker of the question should be able to act on the information the Actor has provided WITH NO MORE WORK OR THINKING. They should be able to take the analysis generated by the Actor and immediately put it into operation. There should be nothing more for the asker of the question to do with respect to the analysis. The Actor is the concluding point.
+        
+        Net Assessment Query:
+        {question}
+        """
+        
+        return helpers.call_gpt_single(self.system_init, prompt, function_name="infer_value")
+            
+    def first_layer(self, prep_result, research, question, specific_persona):
+        base = super().first_layer(prep_result, research, question, specific_persona)
+        
+        #this is an additional step that should be placed somewhere else #TODO:
+        dynamic_criteria = self.infer_value(question)
+        
+        to_criticise = base
+        
+        #TODO: if a statement likethings
+        
+        # for i in tqdm(range(self.recurrence_count+2)):
+        for i in tqdm(range(self.recurrence_count)):
+            print(f"Recurrence First Layer {i}")
+            critic_prompt = f"""
+            Criteria for Evaluating a First Layer Projection:
+
+            1. Accuracy:
+                a. Has the Actors considered all possibilities and relevant information?
+                b. Has he misintepreted any information? If so, how has this information made his analysis skewed, which information has he misinterpreted, and how can he adjust this?
+            2. Technical Detail:
+                a. Are the Actor's points technically detailed enough to express their points?
+                b. Do they include all information necessary?
+                c. Are they assuming that the reader inherently understands some points? How could they express themselves clearer?
+            3. Logical Coherence:
+                a. Are all of the points that the Actor is making syntactically consistent? If not, point of which points are not syntactically consistent, and explain to him how he could improve them.
+                b. Does the Actor's analysis make sense? Does his entire argument align? Are there any parts that would be considered incoherent?
+                c. Is he making any sweeping statements or slippery slope arguments?
+                d. Is he making any jumps in logic without providing ample justification for his conclusions? Which parts is he not linking up? How can he improve?
+            4. Analytical Depth:
+                a. Do the Actor's points have enough depth? Are they considering all of the implications of the information that has been presented to him? Or is just simply finding the easiest explanation? (it is fine if the correct explanation is the easiest one, but that should also take into account all the relevant factors.)
+                b. The Actor needs to provide enough detail and explanation so that an unseasoned reader unfamiliar with the topic would be able to understand it. Has he accomplished this? Where can he be clearer or more detailed? Focus on allowing an unseasoned reader to understand the projection/analysis that the Actor has presented.
+                c. Does the Actor's analysis show sufficient understanding of the geopolitical complexities? Are there perspectives that would be relevant but he has not considered?
+            5. Biases:
+                a. Is the Actor's work free from inherited bias from the information that he has been presented? Is he presenting a completely objective analysis of the facts that are laid in front of him?
+                b. If there are any biases, what are they, and how can the Actor correct them?
+            6. Usage of Evidence and NA prep points:
+                a. Has the Actor sufficiently justified the points that he has presented or asserted? Is he making any logical jumps based on information that he has not presented? If the are points that he is making without proper substantiation, you should point these out. You must also take care to not overdo this point, since there are logical conclusions that can follow from information that has been presented, and you should not be criticising the Actor for making these logical conclusions. This largely pertains to the Actor making assertions without proper justification, or assuming that certain points are obvous to the reader without elucidating them.
+            7. Concluding Impacts (IMPORTANT):
+                a. Has the analyst answering the question in its entirety? Has the question, every single facet, been answering in its entirety?
+                b. How could the Actor better answer the question? How could he better answer the question, keeping in mind that his analysis is critical when presenting it to a client whose goal is to make a decision based on the analysis that the Actor has presented?
+            8. Cascading Impacts:
+                a. This is only applicable if the question concerns a projection of the future, or a diagnosis of the current situation and potential future events.
+                b. Has the Actor elucidated all of the potential cascading impacts that will come from this projected event/situation? If not, what are the potential cascading impacts that he has missed? How can he improve?
+                c. If there are several likely scenarios that might happen, and they are all divergent branches, has the Actor stated which one is the most likely? Has he provided sufficient justification for his points as per the criteria above?
+                d. For those several likely scenarios, what are the triggers for these events? What are these events contingent on? Has the Actor identified this specifically and definitively, so that the reader knows exactly what needs to happen to determine which event path is going to happen?
+            9. Actionable Insights and Tangible Benefits (MOST IMPORTANT):
+                a. The point of an analysis is not to provide an answer with a layer of abstraction on top of actionable and tangible insights. To be clear, instead of saying something like: "Based on the available data and points that we have covered above, you should look towards near, medium and far term supply chain protection policies." You should be saying something like: "Based on the available data and points that we have covered above, it is most likely that [A] will happen in the next 3-4 months. This is because [explanation]. This means that you have 1-2 months to look for a solution for [B].". Or, if the question is more general and related to a projection, the answer should give a specific, defined diagnosis on WHAT will happen and WHEN it will happen. For example, "[A] will happen in [TIMEFRAME], because [REASONS]. These are the potential cascading impacts [CASCADING IMPACTS]. In other words, the Actor needs to be making decisions on the information he has been presented in the research as well as the NA preparation about the future, and answering the question. The asker of the question should be able to act on the information the Actor has provided WITH NO MORE WORK OR THINKING. They should be able to take the analysis generated by the Actor and immediately put it into operation. There should be nothing more for the asker of the question to do with respect to the analysis. The Actor is the concluding point.
+            
+            The first layer projection serves as the main projection from all the information that you have gathered. It answers the question in its entirety, and it is the culmination of all of the preparation work that you have done before. They must answer the question directly.
+            
+            Additionally, here is a set of dynamic criteria that is specific to the question. These criteria have been identified as being able to provide the most value to the person asking the question, and you should focus on these criteria when criticising the Actor's work.
+            
+            {dynamic_criteria}
+            
+            For each of the criteria above, you should explain where the Actor has gone wrong, as well as explain with a general guideline how he could improve. Remember that is the role of the Critic to provide feedback, but not to act on that feedback. You MUST not be making any points for the Actor, but focus on CRITICISING the Actor's work in order for him to make it better. Therefore, your responses should be criticism, and it is up to the Actor to decide the policy / steps forward that he takes.
+            
+            Additionally, there is a seperate set of dynamic criteria that specifically pertains to the question.
+            
+            The piece of analysis that you need to criticise has been given below:
+            {to_criticise}
+            
+            The Actor was using the following information to create this analysis:
+            {research}
+            
+            The Actor was using the following Net Assessment Components to build his analysis:
+            {prep_result}
+            
+            The Actor was developing their First Layer projection with reference to this question:
+            {question}
+            """
+            
+            feedback = helpers.call_gpt_single(self.critic_system_init, critic_prompt, function_name=f"first_layer (critic) iteration {i}")
+            
+            actor_prompt = f"""
+            Your goal as the Actor is to work on criticism that the Critic has provided you with, and update the current content that you are working on. Here was the content you gave for the previous iteration.
+            
+            You are working on the First Layer, the fifth and second last step of the Net Assessment Framework.
+            
+            The first layer projection is the culmination of all of the preparation work you have done before. You MUST answer the question in this step. You must make sure that you answer the question in its entirety, and that you satisfy all of the assessment rubrics of the critic. Here is a reference to what the assessment rubrics are:
+            
+            Criteria for Evaluating a First Layer Projection:
+
+            1. Accuracy:
+                a. Has the Actors considered all possibilities and relevant information?
+                b. Has he misintepreted any information? If so, how has this information made his analysis skewed, which information has he misinterpreted, and how can he adjust this?
+            2. Technical Detail:
+                a. Are the Actor's points technically detailed enough to express their points?
+                b. Do they include all information necessary?
+                c. Are they assuming that the reader inherently understands some points? How could they express themselves clearer?
+            3. Logical Coherence:
+                a. Are all of the points that the Actor is making syntactically consistent? If not, point of which points are not syntactically consistent, and explain to him how he could improve them.
+                b. Does the Actor's analysis make sense? Does his entire argument align? Are there any parts that would be considered incoherent?
+                c. Is he making any sweeping statements or slippery slope arguments?
+                d. Is he making any jumps in logic without providing ample justification for his conclusions? Which parts is he not linking up? How can he improve?
+            4. Analytical Depth:
+                a. Do the Actor's points have enough depth? Are they considering all of the implications of the information that has been presented to him? Or is just simply finding the easiest explanation? (it is fine if the correct explanation is the easiest one, but that should also take into account all the relevant factors.)
+                b. The Actor needs to provide enough detail and explanation so that an unseasoned reader unfamiliar with the topic would be able to understand it. Has he accomplished this? Where can he be clearer or more detailed? Focus on allowing an unseasoned reader to understand the projection/analysis that the Actor has presented.
+                c. Does the Actor's analysis show sufficient understanding of the geopolitical complexities? Are there perspectives that would be relevant but he has not considered?
+            5. Biases:
+                a. Is the Actor's work free from inherited bias from the information that he has been presented? Is he presenting a completely objective analysis of the facts that are laid in front of him?
+                b. If there are any biases, what are they, and how can the Actor correct them?
+            6. Usage of Evidence and NA prep points:
+                a. Has the Actor sufficiently justified the points that he has presented or asserted? Is he making any logical jumps based on information that he has not presented? If the are points that he is making without proper substantiation, you should point these out. You must also take care to not overdo this point, since there are logical conclusions that can follow from information that has been presented, and you should not be criticising the Actor for making these logical conclusions. This largely pertains to the Actor making assertions without proper justification, or assuming that certain points are obvous to the reader without elucidating them.
+            7. Concluding Impacts (IMPORTANT):
+                a. Has the analyst answering the question in its entirety? Has the question, every single facet, been answering in its entirety?
+                b. How could the Actor better answer the question? How could he better answer the question, keeping in mind that his analysis is critical when presenting it to a client whose goal is to make a decision based on the analysis that the Actor has presented?
+            8. Cascading Impacts:
+                a. This is only applicable if the question concerns a projection of the future, or a diagnosis of the current situation and potential future events.
+                b. Has the Actor elucidated all of the potential cascading impacts that will come from this projected event/situation? If not, what are the potential cascading impacts that he has missed? How can he improve?
+                c. If there are several likely scenarios that might happen, and they are all divergent branches, has the Actor stated which one is the most likely? Has he provided sufficient justification for his points as per the criteria above?
+                d. For those several likely scenarios, what are the triggers for these events? What are these events contingent on? Has the Actor identified this specifically and definitively, so that the reader knows exactly what needs to happen to determine which event path is going to happen?
+            9. Actionable Insights and Tangible Benefits (MOST IMPORTANT):
+                a. The point of an analysis is not to provide an answer with a layer of abstraction on top of actionable and tangible insights. To be clear, instead of saying something like: "Based on the available data and points that we have covered above, you should look towards near, medium and far term supply chain protection policies." You should be saying something like: "Based on the available data and points that we have covered above, it is most likely that [A] will happen in the next 3-4 months. This is because [explanation]. This means that you have 1-2 months to look for a solution for [B].". Or, if the question is more general and related to a projection, the answer should give a specific, defined diagnosis on WHAT will happen and WHEN it will happen. For example, "[A] will happen in [TIMEFRAME], because [REASONS]. These are the potential cascading impacts [CASCADING IMPACTS]. In other words, the Actor needs to be making decisions on the information he has been presented in the research as well as the NA preparation about the future, and answering the question. The asker of the question should be able to act on the information the Actor has provided WITH NO MORE WORK OR THINKING. They should be able to take the analysis generated by the Actor and immediately put it into operation. There should be nothing more for the asker of the question to do with respect to the analysis. The Actor is the concluding point.
+            
+            The Critic's assessment is criticism that you must take into account, but you don't need to mention the points that the Critic has raised; you simply need to listen to the feedback and return the improved output. You should not make any statements as to how you are going to develop the First Layer, but rather you should just do it, and return the First Layer. You MUST MAKE SURE that you retain all statistical points and relevant technical details. If there are any pieces of data or technical information represented in the text, they must be represented identically in your response. Generally speaking, you should be expanding and adjusting your last iteration, not decreasing or minimizing it. You should NEVER remove detail from the original piece of text. However, if there is a need to adjust points made because they are wrong, you should. You should always be as verbose as possible. You must retain all numbers and/or statistics, and detail from the information that you consider relevant. You must also keep all names.
+            
+            There are 4, sequential components of Net Assessment before the projection. They are (in no particular order): Material Facts, Force Catalysts, Constraints and Frictions, and Alliances and Laws. The first 4 components have already been completed, and they are provided below for your reference. The definitions of these components have also been provided, as to allow you to understand better what role they serve in Net Assessment.
+            
+            Additionally, here is a set of dynamic criteria that is specific to the question. These criteria have been identified as being able to provide the most value to the person asking the question, and you should focus on these criteria when building your analysis.
+            
+            {dynamic_criteria}
+            
+            You MUST answer the question directly, and consider these guiding points:
+            1. Formulate a thesis that answers the question.
+            2. What is the most likely outcome of the situation if the question asks for an outcome? What are the reasons it might happen? Why is it the most likely outcome?
+            3. Is your analysis detailed and verbose enough where a person who is unacquainted with the field can understand it?
+            
+            Lastly, after that, You must provide a in-depth explanation of your prediction, citing statistics from the information provided, and you must be as specific and technical as possible about the impact. All of your claims must be justified with reasons, and if possible, supported by the provided statistics. You should expand on every single detail, giving a long and verbose answer.
+            
+            NA Preparation Definitions:
+            {self.material_facts_description}
+            {self.force_catalysts_description}
+            {self.constraints_frictions_description}
+            {self.alliances_laws_description}
+            
+            NA Preparation Results:
+            {prep_result}
+            
+            Research:
+            {research}
+            
+            Question:
+            {question}
+            
+            And here is the feedback that you have been given for your most recent iteration:
+            {feedback}
+            """
+            
+            to_criticise = helpers.call_gpt_single(self.actor_system_init, actor_prompt, function_name=f"first_layer (actor) iteration {i}")
+            
+        return to_criticise
+
+    def second_layer(self, prep_result, first_layer, research, question, specific_persona):
+        base = super().second_layer(prep_result, first_layer, research, question, specific_persona)
+        
+        to_criticise = base
+        
+        # for i in tqdm(range(self.recurrence_count+2)):
+        for i in tqdm(range(self.recurrence_count)):
+            print(f"Recurrence First Layer {i}")
+            critic_prompt = f"""
+            Criteria for Evaluating a Second Layer Projection:
+
+            1. Accuracy:
+                a. Has the Actors considered all possibilities and relevant information?
+                b. Has he misintepreted any information? If so, how has this information made his analysis skewed, which information has he misinterpreted, and how can he adjust this?
+            2. Technical Detail:
+                a. Are the Actor's points technically detailed enough to express their points?
+                b. Do they include all information necessary?
+                c. Are they assuming that the reader inherently understands some points? How could they express themselves clearer?
+            3. Logical Coherence:
+                a. Are all of the points that the Actor is making syntactically consistent? If not, point of which points are not syntactically consistent, and explain to him how he could improve them.
+                b. Does the Actor's analysis make sense? Does his entire argument align? Are there any parts that would be considered incoherent?
+                c. Is he making any sweeping statements or slippery slope arguments?
+                d. Is he making any jumps in logic without providing ample justification for his conclusions? Which parts is he not linking up? How can he improve?
+            4. Analytical Depth:
+                a. Do the Actor's points have enough depth? Are they considering all of the implications of the information that has been presented to him? Or is just simply finding the easiest explanation? (it is fine if the correct explanation is the easiest one, but that should also take into account all the relevant factors.)
+                b. The Actor needs to provide enough detail and explanation so that an unseasoned reader unfamiliar with the topic would be able to understand it. Has he accomplished this? Where can he be clearer or more detailed? Focus on allowing an unseasoned reader to understand the projection/analysis that the Actor has presented.
+                c. Does the Actor's analysis show sufficient understanding of the geopolitical complexities? Are there perspectives that would be relevant but he has not considered?
+            5. Biases:
+                a. Is the Actor's work free from inherited bias from the information that he has been presented? Is he presenting a completely objective analysis of the facts that are laid in front of him?
+                b. If there are any biases, what are they, and how can the Actor correct them?
+            6. Usage of Evidence and NA prep points:
+                a. Has the Actor sufficiently justified the points that he has presented or asserted? Is he making any logical jumps based on information that he has not presented? If the are points that he is making without proper substantiation, you should point these out. You must also take care to not overdo this point, since there are logical conclusions that can follow from information that has been presented, and you should not be criticising the Actor for making these logical conclusions. This largely pertains to the Actor making assertions without proper justification, or assuming that certain points are obvous to the reader without elucidating them.
+            7. Concluding Impacts (IMPORTANT):
+                a. Has the analyst answering the question in its entirety? Has the question, every single facet, been answering in its entirety?
+                b. How could the Actor better answer the question? How could he better answer the question, keeping in mind that his analysis is critical when presenting it to a client whose goal is to make a decision based on the analysis that the Actor has presented?
+            8. Second Layer Specific (MOST IMPORTANT):
+                a. The Actor has already provided a first layer analysis. Therefore, at this stage, you should consider an alternate perspective. Is the Actor considering a sufficiently radically different perspective?
+                b. The Actor, at this stage, NEEDS to consider a non-obvious approach. This is critical. Has he considered a sufficiently non-obvious approach? If not, how can he improve?
+                c. The goal at this stage is to discover an insight that no one else would ever think of. He needs to be a divergent thinker. However, it must still be logically coherent. Has the Actor accomplished this? If not, how can he improve?
+                
+            
+            The Second Layer projection serves as the alternate, but equally important second projection from all the information that you have gathered. It answers the question in its entirety, and it is the culmination of all of the preparation work that you have done before. They must answer the question directly.
+            
+            For each of the criteria above, you should explain where the Actor has gone wrong, as well as explain with a general guideline how he could improve. Remember that is the role of the Critic to provide feedback, but not to act on that feedback. You MUST not be making any points for the Actor, but focus on CRITICISING the Actor's work in order for him to make it better. Therefore, your responses should be criticism, and it is up to the Actor to decide the policy / steps forward that he takes.
+            
+            The piece of analysis that you need to criticise has been given below:
+            {to_criticise}
+            
+            The Actor was using the following information to create this analysis:
+            {research}
+            
+            The Actor was using the following Net Assessment Components to build his analysis:
+            {prep_result}
+            
+            The Actor was developing their First Layer projection with reference to this question:
+            {question}
+            
+            This was the Actor's First Layer projection:
+            {first_layer}
+            """
+        
+            
+            feedback = helpers.call_gpt_single(self.critic_system_init, critic_prompt, function_name=f"second_layer (critic) iteration {i}")
+            
+            actor_prompt = f"""
+            Your goal as the Actor is to work on criticism that the Critic has provided you with, and update the current content that you are working on. Here was the content you gave for the previous iteration.
+            
+            You are working on the Second Layer, the sixth and last step of the Net Assessment Framework.
+            
+            The Second Layer projection is the culmination of all of the preparation work you have done before, and a contrarion point to the First Layer. You MUST answer the question in this step. You must make sure that you answer the question in its entirety, and that you satisfy all of the assessment rubrics of the critic. Additionally, the most important point is that the second layer analysis is contrarion, and considers points and information that no one else would consider, and comes out with a robust, critical, yet radically insightful analysis. Here is a reference to what the assessment rubrics are for the Second Layer:
+            
+            1. Accuracy:
+                a. Has the Actors considered all possibilities and relevant information?
+                b. Has he misintepreted any information? If so, how has this information made his analysis skewed, which information has he misinterpreted, and how can he adjust this?
+            2. Technical Detail:
+                a. Are the Actor's points technically detailed enough to express their points?
+                b. Do they include all information necessary?
+                c. Are they assuming that the reader inherently understands some points? How could they express themselves clearer?
+            3. Logical Coherence:
+                a. Are all of the points that the Actor is making syntactically consistent? If not, point of which points are not syntactically consistent, and explain to him how he could improve them.
+                b. Does the Actor's analysis make sense? Does his entire argument align? Are there any parts that would be considered incoherent?
+                c. Is he making any sweeping statements or slippery slope arguments?
+                d. Is he making any jumps in logic without providing ample justification for his conclusions? Which parts is he not linking up? How can he improve?
+            4. Analytical Depth:
+                a. Do the Actor's points have enough depth? Are they considering all of the implications of the information that has been presented to him? Or is just simply finding the easiest explanation? (it is fine if the correct explanation is the easiest one, but that should also take into account all the relevant factors.)
+                b. The Actor needs to provide enough detail and explanation so that an unseasoned reader unfamiliar with the topic would be able to understand it. Has he accomplished this? Where can he be clearer or more detailed? Focus on allowing an unseasoned reader to understand the projection/analysis that the Actor has presented.
+                c. Does the Actor's analysis show sufficient understanding of the geopolitical complexities? Are there perspectives that would be relevant but he has not considered?
+            5. Biases:
+                a. Is the Actor's work free from inherited bias from the information that he has been presented? Is he presenting a completely objective analysis of the facts that are laid in front of him?
+                b. If there are any biases, what are they, and how can the Actor correct them?
+            6. Usage of Evidence and NA prep points:
+                a. Has the Actor sufficiently justified the points that he has presented or asserted? Is he making any logical jumps based on information that he has not presented? If the are points that he is making without proper substantiation, you should point these out. You must also take care to not overdo this point, since there are logical conclusions that can follow from information that has been presented, and you should not be criticising the Actor for making these logical conclusions. This largely pertains to the Actor making assertions without proper justification, or assuming that certain points are obvous to the reader without elucidating them.
+            7. Concluding Impacts (IMPORTANT):
+                a. Has the analyst answering the question in its entirety? Has the question, every single facet, been answering in its entirety?
+                b. How could the Actor better answer the question? How could he better answer the question, keeping in mind that his analysis is critical when presenting it to a client whose goal is to make a decision based on the analysis that the Actor has presented?
+            
+            The Critic's assessment is criticism that you must take into account, but you don't need to mention the points that the Critic has raised; you simply need to listen to the feedback and return the improved output. You should not make any statements as to how you are going to develop the Second Layer, but rather you should just do it, and return the Second Layer. You MUST MAKE SURE that you retain all statistical points and relevant technical details. If there are any pieces of data or technical information represented in the text, they must be represented identically in your response. Generally speaking, you should be expanding and adjusting your last iteration, not decreasing or minimizing it. You should NEVER remove detail from the original piece of text. You should always be as verbose as possible. You must retain all numbers and/or statistics, and detail from the information that you consider relevant. You must also keep all names.
+            
+            There are 4, sequential components of Net Assessment before the projection. They are (in no particular order): Material Facts, Force Catalysts, Constraints and Frictions, and Alliances and Laws. The first 4 components have already been completed, and they are provided below for your reference. The definitions of these components have also been provided, as to allow you to understand better what role they serve in Net Assessment.
+            
+            You MUST answer the question directly, and consider these guiding points:
+            1. Formulate a thesis that answers the question, that is completely different from the first layer.
+            2. What is the most likely outcome of the situation if the question asks for an outcome? What are the reasons it might happen? Why is it the most likely outcome?
+            3. Is your analysis detailed and verbose enough where a person who is unacquainted with the field can understand it?
+            
+            Lastly, after that, You must provide a in-depth explanation of your prediction, citing statistics from the information provided, and you must be as specific and technical as possible about the impact. All of your claims must be justified with reasons, and if possible, supported by the provided statistics. You should expand on every single detail, giving a long and verbose answer.
+            
+            NA Preparation Definitions:
+            {self.material_facts_description}
+            {self.force_catalysts_description}
+            {self.constraints_frictions_description}
+            {self.alliances_laws_description}
+            
+            NA Preparation Results:
+            {prep_result}
+            
+            Research:
+            {research}
+            
+            Question:
+            {question}
+            
+            First Layer:
+            {first_layer}
+            
+            And here is the feedback that you have been given for your most recent iteration:
+            {feedback}
+            """
+            
+            to_criticise = helpers.call_gpt_single(self.actor_system_init, actor_prompt, function_name=f"second layer (actor) iteration {i}")
+            
+        return to_criticise
+
 #TODO: prediction nodes should have + 2 recurrence loops. more robust and detailed. it should ALWAYS be expanding as well. 
+#TODO: these parts should all contain the action plan as well, and be iteratively updated
