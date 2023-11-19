@@ -183,3 +183,5 @@ ruby_env/
 ruby_env
 
 test.ipynb
+
+.DS_Store
