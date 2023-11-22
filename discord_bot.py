@@ -172,6 +172,9 @@ def main():
                 ruby_instance = DiscordRuby(message, priority_level, user_id, user_records_lock, discord_queue)
                 ruby_instance.start()
                 ruby_instance.join()
+                
+            #done with all the messages, exit
+            exit(0)
         else:
             print(f"Channel with ID {channel_id} not found.")
 
@@ -182,7 +185,7 @@ def main():
         await client.change_presence(activity=discord.Game(name="with your mind"))
 
         # Call the function to process messages from the specified channel
-        channel_id = 1133431438172241960  # Replace with your channel ID
+        channel_id = 1176980460182700162  # this is the normal task sink channel id
         await process_channel_messages(channel_id)
 
     # @client.event

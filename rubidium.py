@@ -778,7 +778,7 @@ class ActorCriticRuby(Rubidium):
 
         This methodical process undertakes a comparative review of a range of factors including military capabilities, technological advancements, political developments, and economic conditions among nation-states. The primary aim of Net Assessment is to identify emerging threats and opportunities, essentially laying the groundwork for informed responses to an array of possible scenarios, making it a powerful tool in modern geopolitical and military strategy.
 
-        Net Assessment examines current trends, key competing factors, potential risks, and future prospects in a comparative manner. These comprehensive analyses form the bedrock of strategic predictions extending up to several decades in the future. Thus, leaders geared towards long-term security and strategic outlooks stand to benefit significantly from this indispensable tool.
+        Net Assessment examines current trends, key competing factors, potential risks, and future prospects in a comparative manner. These comprehensive analyses form the bedrock of strategic predictions extending up to several decades in the future. Thus, leaders geared towards long-term security and https://github.com/fangsenberry/yggdrasilstrategic outlooks stand to benefit significantly from this indispensable tool.
 
         The framework also paves the way for diverse types of materials and findings, ranging from deeply researched assessments to concise studies, informal appraisals, and topical memos. These resources, although initially produced in a highly classified environment, have been toned down and adapted for broader strategic and policy-related debates, serving as critical inputs for decision-makers in diverse geopolitical contexts. 
 
@@ -940,7 +940,7 @@ class ActorCriticRuby(Rubidium):
                 f.write(feedback)
             
             actor_prompt = f"""
-            Your goal as the Actor is to work on criticism that the Critic has provided you with, and update the current content that you are working on. Here was the content you gave for the previous iteration.
+            Your goal as the Actor is to work on criticism that the Critic has provided you with, and update the current content that you are working on.
             
             You are working on the Material Facts, the first step of the Net Assessment Framework. This is a brief description of what Material Facts are:
             
@@ -1247,7 +1247,6 @@ class ActorCriticRuby(Rubidium):
             The Actor was developing their Constraints and Frictions analysis with reference to this question:
             {question}
             """
-        
             
             feedback = helpers.call_gpt_single(self.critic_system_init, critic_prompt, function_name=f"get_constraints_friction (critic) iteration {i}")
             
