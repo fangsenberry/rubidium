@@ -161,74 +161,56 @@ def main():
         test_mode = True
         channel_id = 1133431438172241960 #this is the "#carbon-test" channel
 
-    async def process_channel_messages(channel_id):
-        channel = client.get_channel(channel_id)
-        if channel:
-            # Fetch messages in batches
-            async for message in channel.history(limit=100, oldest_first=True):
-                # Process each message
-                priority_level = 3
-                user_id = "temp"
-                ruby_instance = DiscordRuby(message, priority_level, user_id, user_records_lock, discord_queue)
-                ruby_instance.start()
-                ruby_instance.join()
-                
-            #done with all the messages, exit
-            exit(0)
-        else:
-            print(f"Channel with ID {channel_id} not found.")
-
     @client.event
     async def on_ready():
+        global channel
         print(f"We have logged in as {client.user}")
         client.loop.create_task(process_queue())
         await client.change_presence(activity=discord.Game(name="with your mind"))
+        # channel = client.get_channel(channel_id)
+        # await channel.send("Hello! I am Carbon, your friendly AI teacher.\n\nI am here to help you learn all the material from the Net Assessment Textbook: 'Navigating Power Dynamics: A Comprehensive Guide to Net Assessment'\n\nPlease feel free to ask me any questions you have!")
 
-        # Call the function to process messages from the specified channel
-        channel_id = 1176980460182700162  # this is the normal task sink channel id
-        await process_channel_messages(channel_id)
+    @client.event
+    async def on_message(message):
+        # early returns to eliminate the stuff we don't want
+        if message.channel.name != "rubidium-admin": #for now we restrict to only the admin channel
+            return
 
-    # @client.event
-    # async def on_message(message):
-    #     # early returns to eliminate the stuff we don't want
-    #     if message.channel.name != "rubidium-admin": #for now we restrict to only the admin channel
-    #         return
+        if message.author == client.user: #don't respond to ourselves (the bot)
+            return
 
-    #     if message.author == client.user: #don't respond to ourselves (the bot)
-    #         return
-
-    #     if message.content == ('!clear') and message.author.display_name == "iridescent": #only me gets to clear the channel
-    #         # Purge all messages in the channel
-    #         await message.channel.purge()
-    #         return
+        if message.content == ('!clear') and message.author.display_name == "iridescent": #only me gets to clear the channel
+            # Purge all messages in the channel
+            await message.channel.purge()
+            return
         
-    #     #perform some updates based on whether or not we find the user in our records before or not
-    #     with user_records_lock:
-    #         user_records = None
-    #         with open("user_records/user_records.json", "r") as f:
-    #             user_records = json.load(f)
+        #perform some updates based on whether or not we find the user in our records before or not
+        with user_records_lock:
+            user_records = None
+            with open("user_records/user_records.json", "r") as f:
+                user_records = json.load(f)
             
-    #         if str(message.author.id) not in user_records:
-    #             user_records[str(message.author.id)] = {
-    #                 'nickname': message.author.display_name,
-    #                 'question_reportpaths': [] #this contains a list of tuples, which are (question, reportpath)
-    #             }
+            if str(message.author.id) not in user_records:
+                user_records[str(message.author.id)] = {
+                    'nickname': message.author.display_name,
+                    'question_reportpaths': [] #this contains a list of tuples, which are (question, reportpath)
+                }
         
-    #     priority_level = 3
+        priority_level = 3
         
-    #     if message.author.display_name == "iridescent":
-    #         priority_level = 1
-    #     else:
-    #         for role in message.author.roles:
-    #             if role.name == "admin":
-    #                 priority_level = 2
-    #                 break
+        if message.author.display_name == "iridescent":
+            priority_level = 1
+        else:
+            for role in message.author.roles:
+                if role.name == "admin":
+                    priority_level = 2
+                    break
         
         
             
-    #     threading.Thread(target=rubidium_helper, args=(str(message.author.id), priority_level, message.content)).start()
+        threading.Thread(target=rubidium_helper, args=(str(message.author.id), priority_level, message.content)).start()
         
-    # client.run(os.getenv("RUBIDIUM_DISCORD_TOKEN"), reconnect=True)
+    client.run(os.getenv("RUBIDIUM_DISCORD_TOKEN"), reconnect=True)
    
 if __name__ == '__main__':
     main()
