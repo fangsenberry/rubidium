@@ -25,3 +25,7 @@ contains the Rubidium class that we instantiate to use to answer questions
 
 # temp_output [directory]
 This contains a temporary directory that our functions can use to create files and things for use later.
+
+reelevant call notes for na_prep is only used for AC ruby the other one is not implemented. TODO: implement the other one.
+
+right now for the NA prep sections we don't do any discernment between the relevant call notes and the information that we have gatehred. In the first and second layer we do however.

@@ -1,5 +1,8 @@
 import time
-import openai
+from openai import OpenAI
+import os
+
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 import tiktoken
 import threading
 import os
@@ -15,7 +18,6 @@ from docx.shared import Pt, Inches
 
 #soem globals for us
 CHOSEN_MODEL = "gpt-4-1106-preview"
-openai.api_key = os.getenv("OPENAI_API_KEY")
 
 def get_num_tokens(input, model="gpt-4"):
     '''
@@ -173,7 +175,7 @@ def vectorize_text(input):
     model = "text-embedding-ada-002"
 
     #output dimensions are 1536
-    response = openai.Embedding.create(input = input, model = model)
+    response = client.embeddings.create(input = input, model = model)
 
     return response['data'][0]['embedding']
 
@@ -212,14 +214,12 @@ def call_gpt_single(system_init: str, prompt: str, function_name: str = "no name
         try:
             if to_print: print(f"executing {function_name}, using model {chosen_model}")
             start_time = time.time()
-            response = openai.ChatCompletion.create(
-                model=chosen_model,
-                messages=[
-                    {"role": "system", "content": system_init},
-                    {"role": "user", "content": prompt}
-                ],
-                temperature=temperature
-            )
+            response = client.chat.completions.create(model=chosen_model,
+            messages=[
+                {"role": "system", "content": system_init},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=temperature)
 
             end_time = time.time()
             elapsed_time = end_time - start_time
@@ -256,11 +256,9 @@ def call_gpt_multi(messages, try_limit=10, function_name: str = "default", chose
     while try_count <= try_limit:
         try:
             if to_print: print(f"executing {function_name}")
-            response = openai.ChatCompletion.create(
-                model=chosen_model,
-                messages=messages,
-                temperature=1
-            )
+            response = client.chat.completions.create(model=chosen_model,
+            messages=messages,
+            temperature=1)
             if to_print: print(f"done executing {function_name}")
             break
 

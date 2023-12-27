@@ -21,6 +21,16 @@ from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.shared import Pt, Inches
 from queue import PriorityQueue
 
+import sys
+from pathlib import Path
+
+# Path to the directory containing yggdrasil
+parent_dir = Path(__file__).resolve().parent
+sys.path.append(str(parent_dir))
+
+# Now you can import from yggdrasil
+from yggdrasil import midgard, ratatoskr
+
 class Rubidium():
     '''
     This is the base Rubidium class. The Net Assessment function is a one-pass, non-recursive approach to answering Net Assessment queries.
@@ -90,13 +100,11 @@ class Rubidium():
         ret_persona = ret_persona.strip() + "."
         print("personas: ", ret_persona)
         return ret_persona
-        
-
 
     def net_assess(self, question):
         chat_history = [] #a local version of history that we use as context for our second projection and cascading calls.
         
-        research = self.get_research(question)
+        research, relevant_call_notes = self.get_research(question)
         with open("research.txt", "w") as f:
             f.write(research)
         print("done with research")
@@ -106,21 +114,36 @@ class Rubidium():
 
         print("done with persona query")
 
-        prep_result = self.na_prep(research, question, specific_persona)
+        prep_result = self.na_prep(research, question, relevant_call_notes, specific_persona)
         
         print("done with na prep")
 
-        first_layer = self.first_layer(prep_result, research, question, specific_persona)
+        first_layer = self.first_layer(prep_result, research, question, relevant_call_notes, specific_persona)
 
         print("done with first layer")
 
-        second_layer = self.second_layer(prep_result, first_layer, research, question, specific_persona)
+        second_layer = self.second_layer(prep_result, first_layer, research, question, relevant_call_notes, specific_persona)
 
         print("done with second layer")
 
         title = self.get_title(question)
 
         print(f"done with title, title is {title}")
+        
+        print(f"creating directory '{title}'...")
+        
+        try_count = 5
+        while try_count:
+            try_count -= 1
+            try:
+                # Create the directory
+                os.makedirs(title)
+                break
+            except FileExistsError:
+                # directory already exists
+                #generate a new title
+                title = self.get_title(question)
+                pass
 
         finished_report = self.create_report_docx(title, question, prep_result, first_layer, second_layer, research)
 
@@ -128,21 +151,37 @@ class Rubidium():
 
         print("creating article")
         article = self.create_article(title, question, prep_result, first_layer, second_layer, research)
+        # image_prompt = ratatoskr.create_image_prompt(article)
 
-        with open(f"{title} article.txt", "w") as f:
-            f.write(article)
+        with open(f"{title}/{title} article.txt", "w") as f:
+            f.write(f"{article}")
+            
+        
 
-        #start generating the questions here
-        question_corpus = f"The question that the report answers:\n{question}\n\nNet Assessment Aspects and Preparation:\n{prep_result}\n\nFirst Layer of the Net Assessment Projection:\n{first_layer}\n\nA different, divergent perspective on the Net Assessment Projection:\n{second_layer}"
+        #start generating the questions here (REMOVED FOR NOW, WILL BE SEPERATE COMPONENT, USED WHEN NECESSARY)
+        # question_corpus = f"The question that the report answers:\n{question}\n\nNet Assessment Aspects and Preparation:\n{prep_result}\n\nFirst Layer of the Net Assessment Projection:\n{first_layer}\n\nA different, divergent perspective on the Net Assessment Projection:\n{second_layer}"
 
-        questions = self.generate_questions(question_corpus)
-        chosen_questions = self.choose_questions(question_corpus, questions)
-        with open(f"{title} questions.txt", "w") as f:
-            f.write(questions)
-            f.write("CHOSEN QUESTIONS:\n")
-            f.write(chosen_questions)
+        # questions = self.generate_questions(question_corpus)
+        # chosen_questions = self.choose_questions(question_corpus, questions)
+        # with open(f"{title} questions.txt", "w") as f:
+        #     f.write(questions)
+        #     f.write("CHOSEN QUESTIONS:\n")
+        #     f.write(chosen_questions)
 
         return
+
+    def call_research_planner(self, question, action_plan):
+        raise(NotImplementedError)
+        relevant_call_notes = self.retrieve_call_notes(question, action_plan)
+        research_areas = self.identify_research_areas(question, relevant_call_notes)
+        print(f"research areas: {research_areas}")
+        
+        additional_queries = []
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            futures = [executor.submit(self.researchareas_to_sq, question, research_area) for research_area in research_areas]
+            
+            for future in tqdm(concurrent.futures.as_completed(futures), total=len(futures), desc="research areas to sq"):
+                additional_queries.extend(future.result())
 
     def get_research(self, question):
         '''
@@ -153,7 +192,19 @@ class Rubidium():
         action_plan = self.plan_approach(question)
         print(action_plan)
         actions = self.parse_plan(action_plan, question)
+        
+        relevant_call_notes = self.retrieve_call_notes(question, action_plan)
+        research_areas = self.identify_research_areas(question, relevant_call_notes)
+        print(f"research areas: {research_areas}")
+        
+        additional_queries = []
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            futures = [executor.submit(self.researchareas_to_sq, question, research_area) for research_area in research_areas]
+            
+            for future in tqdm(concurrent.futures.as_completed(futures), total=len(futures), desc="research areas to sq"):
+                additional_queries.extend(future.result())
 
+        print(f"additional queries: {additional_queries}")
         search_queries = []
         
         #this kind of overcomplicates things, but computationally this is the fastest because map() is implemented in C and does all the strips at once. We don't really need to use this though because I don't foresee the lists getting this long.
@@ -172,14 +223,17 @@ class Rubidium():
 
         stripped_actions = list(map(custom_strip, actions))
         
-
         with concurrent.futures.ThreadPoolExecutor() as executor:
             futures = [executor.submit(self.action_to_searchquery, stripped_action, question) for stripped_action in stripped_actions]
 
             for future in tqdm(concurrent.futures.as_completed(futures), total=len(futures), desc="action to sq"):
                 search_queries.extend(future.result())
 
+        search_queries.extend(additional_queries)
+
         pruned_searches = self.prune_searches(search_queries)
+        
+        print(f"original sq length: {len(search_queries)}, pruned: {len(pruned_searches)}")
 
         news_searcher = onsearch.SearchManager()
         research = news_searcher.search_list(pruned_searches)
@@ -187,14 +241,171 @@ class Rubidium():
         summary = helpers.summarise(research)
 
         print(f"length of initial summary: {helpers.get_num_tokens(summary)}")
-        while helpers.get_num_tokens(summary) > 3700:
+        while helpers.get_num_tokens(summary) > 8000:
             print(f"summary length for this loop starting at {helpers.get_num_tokens(summary)}")
             summary = helpers.summarise(summary)
             print(f"summary length is now {helpers.get_num_tokens(summary)}")
 
-        return summary
+        return summary, relevant_call_notes
 
-    def na_prep(self, information, question, specific_persona):
+    def read_docx(self, file_path):
+        '''
+        This just converts it back into text. also, this should be in ratatoskr or some other ygg file.
+        '''
+        
+        #checks if the file is .txt. if yes, then just returns the text simply.
+        if file_path.endswith(".txt"):
+            with open(file_path, "r") as f:
+                return f.read()
+        
+        doc = docx.Document(file_path)
+        full_text = []
+        for para in doc.paragraphs:
+            full_text.append(para.text)
+            
+        return '\n'.join(full_text)
+
+    def retrieve_call_notes(self, question, action_plan):
+        '''
+        This is a temporary measure, where we just look at the entirely of all the call notes in the directory. Needs to be integrated properly into a vector database.
+        '''
+        directory = "call_notes"
+        relative_paths = []
+        for entry in os.listdir(directory):
+            # print(entry)
+            full_path = os.path.join(directory, entry)
+            if os.path.isfile(full_path):
+                relative_path = os.path.relpath(full_path, directory)
+                relative_paths.append(relative_path)
+                
+        # print(relative_paths)
+        
+        similar_call_notes = f""
+        tasks = []
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            for relative_path in relative_paths:
+                # Submit each file processing as a separate task
+                task = executor.submit(self.process_file, directory, relative_path, question)
+                tasks.append(task)
+
+            # Collect results as they are completed
+            for future in concurrent.futures.as_completed(tasks):
+                similar_call_notes += future.result()
+
+        return self.extract_relevant(action_plan, question, similar_call_notes)
+ 
+    def process_file(self, directory, relative_path, question):
+        report_text = self.read_docx(f"{directory}/{relative_path}")
+        return self.retrieve_call_note(report_text, question)
+            
+    def retrieve_call_note(self, call_note, question, top_k: int = 9):
+        '''
+        This just takes in one call note, splits it into chunks, and then returns the top_k relevant chunks
+        '''
+        # print(call_note)
+        sentences = call_note.split(".")
+        # print(len(sentences))
+        chunks = []
+        
+        curr_chunk = ""
+        for sentence in tqdm(sentences):
+            curr_chunk += f"{sentence}." #reappend that period
+            # print(midgard.get_num_tokens(curr_chunk))
+            if midgard.get_num_tokens(curr_chunk) > 300:
+                similarity = midgard.get_similarity(question, curr_chunk)
+                chunks.append((similarity, curr_chunk))
+                # print(curr_chunk)
+                curr_chunk = ""
+                
+        #handle the last chunk
+        similarity = midgard.get_similarity(question, curr_chunk)
+        chunks.append((similarity, curr_chunk))
+        
+        #we sort this by the similarity score
+        sorted_chunks = sorted(chunks, key=lambda x: x[0], reverse=True)[:top_k]
+
+        #arrange the content so we return a string
+        similar_content = f""
+        for similarity, content in sorted_chunks:
+            similar_content += f"{content}\n\n"
+
+        print(f"tokens for relevance: {helpers.get_num_tokens(similar_content)}")
+
+        return similar_content
+    
+    def extract_relevant(self, action_plan, question, similar_call_notes):
+        #seperate it into chunks again to be operated on by the relevant extractor. We want this to be fast, so split into smaller chunks.
+        sentences = similar_call_notes.split(".")
+        
+        chunks = []
+        curr_chunk = ""
+        for sentence in tqdm(sentences):
+            curr_chunk += f"{sentence}." #reappend that period
+            if midgard.get_num_tokens(curr_chunk) > 600:
+                chunks.append(curr_chunk)
+                curr_chunk = ""
+                
+        similarity = midgard.get_similarity(question, curr_chunk)
+        chunks.append(curr_chunk)
+        
+        tasks = []
+        relevant_call_notes = ""
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            for chunk in chunks:
+                task = executor.submit(self.extract_relevant_helper, action_plan, question, chunk)
+                tasks.append(task)
+                
+            for future in tqdm(concurrent.futures.as_completed(tasks), total=len(tasks), desc="extract relevant"):
+                relevant_call_notes += future.result()
+                
+        return relevant_call_notes
+            
+    def extract_relevant_helper(self, action_plan, question, chunk):
+        prompt = f"""
+        There is a group of analysts who collectively have discussions about the important things going on in the world. They are all well known and successful people in their own fields, and I will be providing you with a portion of the transcript of their discussions. This portion contains content that has been determined to be semantically similar to the question that we are trying to analyse to generate a Net Assessment report. Your goal is to extract the portions that are relevant to creating the Net Assessment report, or helping in the process of analysis in either answering the below provided question, or the steps in the below provided action plan. These relevant portions must be extracted in its entirety and exactly as they are represented in the text. You can remove irrelevant portions. You must keep all names, phrasing, statistics and numbers. You must also preserve the order in which you were given the information. You will be given the question that we are trying to answer with a Net Assessment Report, as well as the plan for answering that question. If you determine that there are relevant portions in the text, you should output ALL of the RELEVANT portions exactly as they were represented in the text. You must not add any additional information. If there is no relevant information that might be helpful in answering the question according to the question or the action plan, then you should return the string "NRC". You MUST only return this string without any quotes, since this will be parsed programmatically.
+        
+        Question:
+        {question}
+        
+        Action Plan:
+        {action_plan}
+        
+        Information for you to extract relevant content from:
+        {chunk}
+        """
+        
+        res = midgard.call_gpt_single(self.system_init, prompt, function_name="extract_relevant_helper", to_print=False, chosen_model="gpt-4")
+        
+        if res == "NRC":
+            return ""
+        else:
+            return res
+    
+    def identify_research_areas(self, question, relevant_call_notes):
+        prompt = f"""
+        There is a group of analysts who collectively have discussions about the important things going on in the world. They are all well known and successful people in their own fields, and I will be providing you with a portion of the transcript of their discussions. The information that we have extracted from this transcript has been determined to be relevant to the answering of the below Net Assessment question. However, the statements made during the call are often generalisations or references to other pieces of material. Therefore, we need to search more in order to obtain more information about the topics that were discussed during the call. Your goal is to create an exhaustive list of all the different areas that were highlighted during the call, but warrant further resarch. Your list MUST be a newline seperated list, since it will be parsed programmatically, and transformed into search queries that will go into search engines and relevant semantic search knowledge bases. Because each of your research directions are going to be parsed into a search query, you must ensure that the output you are stating is as conducive as possible to be used for a search query. You must also ensure that the output is as exhaustive as possible, and that you do not miss out on any research directions that might be relevant to the question.
+        
+        Question:
+        {question}
+        
+        Relevant Call Notes:
+        {relevant_call_notes}
+        """
+        
+        return midgard.call_gpt_single(self.system_init, prompt, function_name="identify_research_areas").split("\n")
+        
+    def researchareas_to_sq(self, question, research_area):
+        prompt = f"""
+        I will give you an research area, and I want you to transform this into an exhaustive list of possible search queries that will come out of this research direction. This search query is going to go into a news website, and it should be transformed in a way that will search these websites well. I want you to identify the topics that need research in this research area and return the seperate topics formatted to be used in search queries. The search queries should be seperated by the seperate topics. If there are multiple topics that need to be searched seperately within the question, seperate them with a semicolon. The final string should be a search query encompassing all the topics. I have also provided the original question that these research areas are meant to help answer. Use this as a reference where appropriate, but you should focus on converting the research area, not the question. You MUST NOT add any additional topics or explanations, just return me the string representing the search query. For example, if the research area is 'Identify China's main technology exports related to climate change and health.', you should return 'China Climate Change Technology;China main technology exports;China Healthtech;China health technology latest.' There must be no extra whitespace between search query terms. You MUST only extract the topics from the action. For example, if the research area is is 'latest news in activism' you should return 'activism'. You should also remove all references to news, since this query is going to be used to search a news site. For example, given the action 'Find out all of the latest LGBTQ+ news', you should return 'LGBTQ+;LGBTQ'. You must also return all output without the single or double quotes. To clarify, you must simply return the raw text in the format specified above without the quotes surrounding the entire output.
+
+        The research area is: {research_area}
+        The question is: {question}
+        """
+        
+        return midgard.call_gpt_single(self.system_init, prompt, function_name="researchareas_to_sq", to_print=False).split(";")
+
+    def na_prep(self, information, question, relevant_call_notes, specific_persona):
+        information += f"\n\n{relevant_call_notes}"
         def wrapper(func_index):
             funcs = [
                 self.get_material_facts,
@@ -295,8 +506,7 @@ class Rubidium():
         
         return helpers.call_gpt_single(self.system_init, prompt, function_name="get_alliance_law")
 
-    def first_layer(self, prep_result, research, question, specific_persona):
-        
+    def first_layer(self, prep_result, research, question, relevant_call_notes, specific_persona):
         prompt = f"""
                 You are an expert on the 'Net Assessment' approach to analysis, and you are able to apply this to any topic. The hallmark of your excellence is how you think outside of the box and obtain insights others would never be able to give. {specific_persona} You do not shy away from sensitive topics, and your analysis must provide a clear and accurate view of the situation that you are given.
 
@@ -308,6 +518,8 @@ class Rubidium():
                 4. Law and Alliances (Are there any relevant laws or affiliations between related parties that will affect the outcome?)
                 5. Formulate a thesis and antithesis that answers the question. What is the most likely outcome of the situation? What is the opposite of that outcome? What are the reasons each might happen?
                 In the above framework, you have been told how to use each seperate component to create your analysis.
+
+                You have also been given relevant statements made from a call transcript of high level analysts. You MUST not bias your analysis towards these statements, they are just there to offer insight that might not be public knowledge or easily discoverable. You should take these pieces of information into account, but you MUST also treat them the same as all the other aspects of information and Net Assessment components that you have been given in terms of importance and weight. Consider this information that is helping you, the analyst, make the best possible analysis that you can, NOT a guiding set of statements that you adhere to. This relevant information is provided below under the section "Relevant Call Notes".
 
                 You are given all the seperate components except for the Thesis and Antithesis. From the provided components below, as well as the information and question, you must formulate a thesis and antithesis. You must be as detailed as possible. You must explain why you think each outcome is likely to happen, and provide as much detail as possible. You must also explain why the opposite outcome is unlikely to happen.
                 
@@ -327,7 +539,7 @@ class Rubidium():
 
         return helpers.call_gpt_single(self.system_init, prompt, function_name="first_layer")
 
-    def second_layer(self, prep_result, first_layer, research, question, specific_persona):
+    def second_layer(self, prep_result, first_layer, research, question, relevant_call_notes, specific_persona):
         #TODO:
 
         first_layer_prompt = f"""
@@ -342,6 +554,8 @@ class Rubidium():
             5. Formulate a thesis and antithesis that answers the question. What is the most likely outcome of the situation? What is the opposite of that outcome? What are the reasons each might happen?
             In the above framework, you have been told how to use each seperate component to create your analysis.
 
+            You have also been given relevant statements made from a call transcript of high level analysts. You MUST not bias your analysis towards these statements, they are just there to offer insight that might not be public knowledge or easily discoverable. You should take these pieces of information into account, but you MUST also treat them the same as all the other aspects of information and Net Assessment components that you have been given in terms of importance and weight. Consider this information that is helping you, the analyst, make the best possible analysis that you can, NOT a guiding set of statements that you adhere to. This relevant information is provided below under the section "Relevant Call Notes".
+
             You are given all the seperate components except for the Thesis and Antithesis. From the provided components below, as well as the information and question, you must formulate a thesis and antithesis. You must be as detailed as possible. You must explain why you think each outcome is likely to happen, and provide as much detail as possible. You must also explain why the opposite outcome is unlikely to happen.
             
             Then, using the information provided and the components of the Net Assessment framework, provide a detailed prediction and analysis that answers the question provided. You must provide a in-depth explanation of your prediction, citing statistics from the information provided, and you must be as specific and technical as possible about the impact. All of your claims must be justified with reasons, and if possible, supported by the provided statistics. Your prediction must be at least 500 words long, preferably longer.
@@ -351,6 +565,9 @@ class Rubidium():
 
             Information:
             {research}
+            
+            Relevant Call Notes:
+            {relevant_call_notes}
 
             Question:
             {question}
@@ -555,7 +772,7 @@ class Rubidium():
         information_header = doc.add_heading("Information", level=1)
         doc.add_paragraph(information) #add the information
 
-        file_path = f"{self.reports_directory}/{title}.docx"
+        file_path = f"{title}/{title}.docx"
         doc.save(file_path)
         
         return file_path
@@ -566,7 +783,7 @@ class Rubidium():
         '''
 
         prompt = f"""
-        I will give you a set of content and encaptulates a Net Assessment report. Your goal is to transform this into an article that is gripping and informative for readers. This article will be published on a news site. It does not need to go into as much detail as the report, but should encapsulate the main points of the report. Your article should be as verbose as possible.
+        I will give you a Net Assessment report. Your goal is to transform this into an article that is gripping and informative for readers. In order for the article to be gripping and interest readers, you must use succint and yet impactful language, while supporting claims with evidence in order to communicate that due diligence has been done. This article will be published on a news site. It does not need to go into as much detail as the report, but should encapsulate the main points of the report. Most importantly, you MUST deliver a truncated form of the insights that the report has elucidated, this is to provide value for the readers and draw them in. Your article should be as verbose as possible.
 
         Here is the title of the report: {title}
         Here is the question that the report answers: {question}
@@ -575,7 +792,7 @@ class Rubidium():
         Here is the second layer of the report: {second_projection}
         Here is the information of the report: {information}
 
-        You must only return the raw text of the transformed article, and nothing else.
+        You MUST only return the raw text of the transformed article, and nothing else.
         """
 
         return helpers.call_gpt_single(self.system_init, prompt, function_name="create_article")
@@ -596,6 +813,15 @@ class Rubidium():
         prompt = f"You have been given a set of Net Assessment questions to follow up on and the report they came from. You are to determine the top {top_k} most important questions, as well as explain why they are the most important. The questions and report have been provided below:\n\n{questions}"
         
         return helpers.call_gpt_single(self.system_init, prompt, function_name="choose_questions")
+    
+    def create_cover_photo(k: int = 3):
+        '''
+        Creates a cover photo for the content.
+        
+        k is the number of samples to generate for us (human) to consider
+        '''
+        
+        
 
 class DiscordRuby(Rubidium):
     '''
@@ -1322,8 +1548,8 @@ class ActorCriticRuby(Rubidium):
         
         return helpers.call_gpt_single(self.system_init, prompt, function_name="infer_value")
             
-    def first_layer(self, prep_result, research, question, specific_persona):
-        base = super().first_layer(prep_result, research, question, specific_persona)
+    def first_layer(self, prep_result, research, question, relevant_call_notes, specific_persona):
+        base = super().first_layer(prep_result, research, question, relevant_call_notes, specific_persona)
         
         #this is an additional step that should be placed somewhere else #TODO:
         dynamic_criteria = self.infer_value(question)
@@ -1332,8 +1558,8 @@ class ActorCriticRuby(Rubidium):
         
         #TODO: if a statement likethings
         
-        # for i in tqdm(range(self.recurrence_count+2)):
-        for i in tqdm(range(self.recurrence_count)):
+        for i in tqdm(range(self.recurrence_count+2)):
+        # for i in tqdm(range(self.recurrence_count)):
             print(f"Recurrence First Layer {i}")
             critic_prompt = f"""
             Criteria for Evaluating a First Layer Projection:
@@ -1440,6 +1666,8 @@ class ActorCriticRuby(Rubidium):
             
             There are 4, sequential components of Net Assessment before the projection. They are (in no particular order): Material Facts, Force Catalysts, Constraints and Frictions, and Alliances and Laws. The first 4 components have already been completed, and they are provided below for your reference. The definitions of these components have also been provided, as to allow you to understand better what role they serve in Net Assessment.
             
+            You have also been given relevant statements made from a call transcript of high level analysts. You MUST not bias your analysis towards these statements, they are just there to offer insight that might not be public knowledge or easily discoverable. You should take these pieces of information into account, but you MUST also treat them the same as all the other aspects of information and Net Assessment components that you have been given in terms of importance and weight. Consider this information that is helping you, the analyst, make the best possible analysis that you can, NOT a guiding set of statements that you adhere to. This relevant information is provided below under the section "Relevant Call Notes".
+            
             Additionally, here is a set of dynamic criteria that is specific to the question. These criteria have been identified as being able to provide the most value to the person asking the question, and you should focus on these criteria when building your analysis.
             
             {dynamic_criteria}
@@ -1449,7 +1677,9 @@ class ActorCriticRuby(Rubidium):
             2. What is the most likely outcome of the situation if the question asks for an outcome? What are the reasons it might happen? Why is it the most likely outcome?
             3. Is your analysis detailed and verbose enough where a person who is unacquainted with the field can understand it?
             
-            Lastly, after that, You must provide a in-depth explanation of your prediction, citing statistics from the information provided, and you must be as specific and technical as possible about the impact. All of your claims must be justified with reasons, and if possible, supported by the provided statistics. You should expand on every single detail, giving a long and verbose answer.
+            Lastly, after that, You must provide a in-depth explanation of your prediction, citing statistics from the information provided, and you must be as specific and technical as possible about the impact. All of your claims must be justified with reasons, and if possible, supported by the provided statistics. You should expand on every single detail, giving a long and verbose answer. When you are making claims supported by information, you MUST state this piece of information whenever you make the statement.
+            
+            To reiterate, you MUST NOT make any references to the fact that you are playing the role of the Actor in this pair, or that you are operating on criticism from a Critic. You MUST directly perform the analysis, and directly improve on the criticism, without referencing the Actor-Critic framework. Your output, which is the analysis, will be directly given to the reader. They do not know that you are in an Actor Critic pair, and any references to it is detrimental and will confuse readers. You should also not be making any generalised statements for how you are going to approach building the analysis, you MUST simply do it.
             
             NA Preparation Definitions:
             {self.material_facts_description}
@@ -1463,6 +1693,9 @@ class ActorCriticRuby(Rubidium):
             Research:
             {research}
             
+            Relevant Call Notes:
+            {relevant_call_notes}
+            
             Question:
             {question}
             
@@ -1470,18 +1703,21 @@ class ActorCriticRuby(Rubidium):
             {feedback}
             """
             
+            with open(f"first_layer critic {self.recurrence_count}.txt", "w") as f:
+                f.write(feedback)
+            
             to_criticise = helpers.call_gpt_single(self.actor_system_init, actor_prompt, function_name=f"first_layer (actor) iteration {i}")
             
         return to_criticise
 
-    def second_layer(self, prep_result, first_layer, research, question, specific_persona):
-        base = super().second_layer(prep_result, first_layer, research, question, specific_persona)
+    def second_layer(self, prep_result, first_layer, research, question, relevant_call_notes, specific_persona):
+        base = super().second_layer(prep_result, first_layer, research, question, relevant_call_notes, specific_persona)
         
         to_criticise = base
         
-        # for i in tqdm(range(self.recurrence_count+2)):
-        for i in tqdm(range(self.recurrence_count)):
-            print(f"Recurrence First Layer {i}")
+        for i in tqdm(range(self.recurrence_count+2)):
+        # for i in tqdm(range(self.recurrence_count)):
+            print(f"Recurrence Second Layer {i}")
             critic_prompt = f"""
             Criteria for Evaluating a Second Layer Projection:
 
@@ -1513,7 +1749,6 @@ class ActorCriticRuby(Rubidium):
                 a. The Actor has already provided a first layer analysis. Therefore, at this stage, you should consider an alternate perspective. Is the Actor considering a sufficiently radically different perspective?
                 b. The Actor, at this stage, NEEDS to consider a non-obvious approach. This is critical. Has he considered a sufficiently non-obvious approach? If not, how can he improve?
                 c. The goal at this stage is to discover an insight that no one else would ever think of. He needs to be a divergent thinker. However, it must still be logically coherent. Has the Actor accomplished this? If not, how can he improve?
-                
             
             The Second Layer projection serves as the alternate, but equally important second projection from all the information that you have gathered. It answers the question in its entirety, and it is the culmination of all of the preparation work that you have done before. They must answer the question directly.
             
@@ -1537,6 +1772,9 @@ class ActorCriticRuby(Rubidium):
         
             
             feedback = helpers.call_gpt_single(self.critic_system_init, critic_prompt, function_name=f"second_layer (critic) iteration {i}")
+            
+            with open(f"second_layer critic {self.recurrence_count}.txt", "w") as f:
+                f.write(feedback)
             
             actor_prompt = f"""
             Your goal as the Actor is to work on criticism that the Critic has provided you with, and update the current content that you are working on. Here was the content you gave for the previous iteration.
@@ -1574,12 +1812,16 @@ class ActorCriticRuby(Rubidium):
             
             There are 4, sequential components of Net Assessment before the projection. They are (in no particular order): Material Facts, Force Catalysts, Constraints and Frictions, and Alliances and Laws. The first 4 components have already been completed, and they are provided below for your reference. The definitions of these components have also been provided, as to allow you to understand better what role they serve in Net Assessment.
             
+            You have also been given relevant statements made from a call transcript of high level analysts. You MUST not bias your analysis towards these statements, they are just there to offer insight that might not be public knowledge or easily discoverable. You should take these pieces of information into account, but you MUST also treat them the same as all the other aspects of information and Net Assessment components that you have been given in terms of importance and weight. Consider this information that is helping you, the analyst, make the best possible analysis that you can, NOT a guiding set of statements that you adhere to. This relevant information is provided below under the section "Relevant Call Notes".
+            
             You MUST answer the question directly, and consider these guiding points:
             1. Formulate a thesis that answers the question, that is completely different from the first layer.
             2. What is the most likely outcome of the situation if the question asks for an outcome? What are the reasons it might happen? Why is it the most likely outcome?
             3. Is your analysis detailed and verbose enough where a person who is unacquainted with the field can understand it?
             
-            Lastly, after that, You must provide a in-depth explanation of your prediction, citing statistics from the information provided, and you must be as specific and technical as possible about the impact. All of your claims must be justified with reasons, and if possible, supported by the provided statistics. You should expand on every single detail, giving a long and verbose answer.
+            Lastly, after that, You must provide a in-depth explanation of your prediction, citing statistics from the information provided, and you must be as specific and technical as possible about the impact. All of your claims must be justified with reasons, and if possible, supported by the provided statistics. You should expand on every single detail, giving a long and verbose answer. When you are making claims supported by information, you MUST state this piece of information whenever you make the statement.
+            
+            To reiterate, you MUST NOT make any references to the fact that you are playing the role of the Actor in this pair, or that you are operating on criticism from a Critic. You MUST directly perform the analysis, and directly improve on the criticism, without referencing the Actor-Critic framework. Your output, which is the analysis, will be directly given to the reader. They do not know that you are in an Actor Critic pair, and any references to it is detrimental and will confuse readers. You should also not be making any generalised statements for how you are going to approach building the analysis, you MUST simply do it.
             
             NA Preparation Definitions:
             {self.material_facts_description}
@@ -1592,6 +1834,9 @@ class ActorCriticRuby(Rubidium):
             
             Research:
             {research}
+            
+            Relevant Call Notes:
+            {relevant_call_notes}
             
             Question:
             {question}
@@ -1606,6 +1851,32 @@ class ActorCriticRuby(Rubidium):
             to_criticise = helpers.call_gpt_single(self.actor_system_init, actor_prompt, function_name=f"second layer (actor) iteration {i}")
             
         return to_criticise
+    
+    def create_newsletter_section(self, article):
+        prompt = f"""
+        I will give you an article derived from a Net Assessment Report. I want you to turn this article into a small, succint newsletter section that will be sent out together with other article based newsletters in the Build Our World newsletter. Build Our World is a media organization that publishes analyses on important and current world issues, and providing actionable insights through their analyses. The goal of the Build Our World newsletter is to inform subscribers and new readers of the information that Build Our World has published recently. Build Our World is currently a media publication operating like The Economist with 4 big categories:
+        
+        1. Global Geopolitics
+        2. Business and Economics
+        3. Technology and Industry
+        4. Global Climate Beat
+        
+        Build Our World currently published articles and Net Assessment reports. Each report is attached to a article, and each report might have more than one category that it falls into.
+        
+        You should include a title as well as the newsletter content for the newsletter. This report will only take up one section. This is an example of a section of a newsletter from Bloomberg. You should try to emulate this (and adhere to the length of the newsletter section as defined in the example):
+        
+        'AI musical chairs
+        OpenAI co-founder Sam Altman wasn’t out of a job for very long. Microsoft — a major backer of OpenAI — has hired Altman to lead its new in-house AI effort, as well as former OpenAI President Greg Brockman who had quit the company in protest of Altman’s ouster by the board last week. Microsoft’s appointments, which lifted its shares by more than 2% in early Monday trading, came after CEO Satya Nadella failed in his efforts to get Altman reinstated at OpenAI. Microsoft said it remains committed to its partnership with OpenAI and Nadella said he looks forward to getting to know former Twitch chief Emmett Shear as the newly-appointed CEO. Shear in September said in a post he’s “in favor of a slowdown” of  technological advancement in AI.'
+        
+        There should be one part in the newsletter that is hyperlinked back to the report that has been provided to you. You should highlight this part by placing the phrase <HYPERLINK START> at the start and <HYPERLINK END> at the end of the part that you want to hyperlink. You must also bold certain phrases to draw readers' eyes. Please use bolding sparingly, as so not overload the reader.
+        
+        The content of the newsletter should quote statistics used to make the points of the analysis as to instill confidence in the reader that our justifications are substantiated. Additionally, the title that you come up with should not be ambiguous. I should be able to directly infer what you are talking about from reading the title. This will allow the reader to better understand the content in this particular section of the newsletter, and better decide whether or not they want to read it. You are only supposed to write ONE section in the newsletter, that manages to capture the essence of what we are trying to analyse/discover with our report. You do not need to cover the entire report, but you should capture its conclusion, and keep in mind the goal of enticing readers to read the full report. of approximately the same length as the example section that has been provided to you above. Do not make any references to how we have done or analysed the question, but rather, you should just transform the content into a newsletter. You should do it such that the content presented in the newsletter stands by itself, and readers are intrigued by the content that you have presented, not by any self serving assertions that we have done Net Assessment well, or how good the report is. You MUST adhere to the approximate length of the newsletter section example above. Too long a newsletter will cause readers to ignore it entirely, which is very, very bad. It MUST be around 100-125 words
+        
+        Here is the article that you are generating the newsletter section for:
+        {article}
+        """
+        
+        return helpers.call_gpt_single(self.system_init, prompt, function_name="create_newsletter_section")
 
 #TODO: prediction nodes should have + 2 recurrence loops. more robust and detailed. it should ALWAYS be expanding as well. 
 #TODO: these parts should all contain the action plan as well, and be iteratively updated

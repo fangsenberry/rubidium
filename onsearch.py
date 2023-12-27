@@ -7,7 +7,9 @@ import os
 import requests
 from time import sleep
 from datetime import datetime, timedelta
-import openai
+from openai import OpenAI
+
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 from tqdm.auto import tqdm
 import json
 
@@ -31,9 +33,20 @@ from collections import deque
 import time
 import sys
 
+import sys
+from pathlib import Path
+
+import random
+
+# Path to the directory containing yggdrasil
+parent_dir = Path(__file__).resolve().parent
+sys.path.append(str(parent_dir))
+
+# Now you can import from yggdrasil
+from yggdrasil import midgard
+
 import helpers
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
 
 class SearchManager():
     '''
@@ -46,7 +59,10 @@ class SearchManager():
         self.search_calltimes_lock = threading.Lock()
         self.search_semaphore = threading.BoundedSemaphore(self.max_ujeebu_requests_concurrent)
 
-        self.search_website_links_sempahore = threading.BoundedSemaphore(15) #this is for the link retrieval
+        # self.search_website_links_sempahore = threading.BoundedSemaphore(8) #this is for the link retrieval
+        self.search_website_links_semaphore = threading.BoundedSemaphore(25)
+        # self.search_website_calltimes = deque(maxlen=25)
+        # self.search__website_calltimes_lock = threading.Lock()
 
         self.ujeebu_fail_count = 0
         self.ujeebu_success_count = 0
@@ -119,7 +135,7 @@ class SearchManager():
         results = results.strip("\n\n")
         list_results[index] = results
 
-    def search_website(self, website_name: str, query: str, i: int, results_container: dict, top_k: int = 5):
+    def search_website(self, website_name: str, query: str, i: int, results_container: dict, top_k: int = 3):
         '''
         TODO: is AFP legit for searching or not?
         TODO: maybe UJEEBU can replace the searching as well in some capacity. right now its a little buggy
@@ -130,94 +146,137 @@ class SearchManager():
         https://www.scmp.com/search/test%20tests (In this example, the query that I put into the search bar was "test tests")
         https://www.ft.com/search?q=test+tests (In this example, the query that I put into the search bar was "test tests")
         '''
-        # with self.search_website_links_sempahore:
-            # sleep(0.5) #just retard this a bit so we don't get banned, and then we do the whole search in the mutex also.
-        website_searchurls = {
-            "Reuters": "https://www.reuters.com/site-search/?query={query}",
-            "AFP": "https://www.afp.com/en/search/results/{query}",
-            "Economist": "https://www.economist.com/search?q={query}",
-            "Bloomberg": "https://www.bloomberg.com/search?query={query}",
-            "SCMP": "https://www.scmp.com/search/{query}",
-            "Financial Times": "https://www.ft.com/search?q={query}",
-        }
+        with self.search_website_links_semaphore:
+        # below code assures 10 calls per 1.5 seconds, does not exceed.
+        # with self.search__website_calltimes_lock:
+        #     if len(self.search_website_calltimes) == 10:
+        #         time_diff = time.time() - self.search_calltimes[0]
+        #         if time_diff < 1.5:
+        #             sleep_time = 1.5 - time_diff
+        #             # print(f"SLEEPING FOR {sleep_time} SECONDS")
+        #             time.sleep(sleep_time)
 
-        base_urls = {
-            "Reuters": "https://www.reuters.com",
-            "AFP": "https://www.afp.com",
-            "Economist": "https://www.economist.com",
-            "Bloomberg": "https://www.bloomberg.com",
-            "SCMP": "https://www.scmp.com",
-            "Financial Times": "https://www.ft.com",
-        }
-
-        whitespace_encoding = {
-            "Reuters": "+",
-            "AFP": "%20",
-            "Economist": "+",
-            "Bloomberg": "%20",
-            "SCMP": "%20",
-            "Financial Times": "+",
-        }
-
-        if website_name not in website_searchurls.keys():
-            print("Website not supported")
-            return []
-
-        space_char = whitespace_encoding.get(website_name, "+")
-        encoded_query = quote(query).replace("%20", space_char)
-        search_url = website_searchurls[website_name].format(query=encoded_query)
-        
-        try:
-            chrome_options = Options()
-            chrome_options.add_argument("--headless")
-            chrome_options.add_argument("--incognito")
-
-            # print("trying to insatll chromedriver")
-            # webdriver_service = Service(ChromeDriverManager().install())
-            # print("installed chromdriver")
-            # driver = webdriver.Chrome(service=webdriver_service, options=chrome_options)
-            driver = webdriver.Chrome(options=chrome_options)
-            # print(f"doing driver get for {website_name}")
-            driver.get(search_url)
-            # print(f"done driver get for {website_name}")
-
-            if website_name == "SCMP":
-                # print("Searching SCMP...")
-                top_links_raw = WebDriverWait(driver, 10).until(
-                    EC.presence_of_all_elements_located((By.CSS_SELECTOR, '.ebqqd5k0.css-1r4kaks.ef1hf1w0'))
-                )[:top_k]
-
-                # Using Selenium to extract the href directly, so no need for BeautifulSoup
-                results_container[i] = [elem.get_attribute('href') for elem in top_links_raw]
-
-                driver.quit()
+        #     self.search_calltimes.append(time.time())
                 
-            elif website_name == "Financial Times":
-                top_links_raw = WebDriverWait(driver, 10).until(
-                    EC.presence_of_all_elements_located((By.CSS_SELECTOR, 'a.js-teaser-heading-link'))
-                )[:top_k]
+        # sleep(0.5) #just retard this a bit so we don't get banned, and then we do the whole search in the mutex also.
+            website_searchurls = {
+                "Reuters": "https://www.reuters.com/site-search/?query={query}",
+                "AFP": "https://www.afp.com/en/search/results/{query}",
+                "Economist": "https://www.economist.com/search?q={query}",
+                "Bloomberg": "https://www.bloomberg.com/search?query={query}",
+                "SCMP": "https://www.scmp.com/search/{query}",
+                "Financial Times": "https://www.ft.com/search?q={query}",
+                "Nikkei" : "https://asia.nikkei.com/search?query={query}",
+                "Channel News Asia": "https://www.channelnewsasia.com/search?q={query}"
+            }
 
-                # Using Selenium to extract the href directly, so no need for BeautifulSoup
-                results_container[i] = [elem.get_attribute('href') for elem in top_links_raw]
+            base_urls = {
+                "Reuters": "https://www.reuters.com",
+                "AFP": "https://www.afp.com",
+                "Economist": "https://www.economist.com",
+                "Bloomberg": "https://www.bloomberg.com",
+                "SCMP": "https://www.scmp.com",
+                "Financial Times": "https://www.ft.com",
+                "Nikkei": "https://asia.nikkei.com"
+            }
 
-                driver.quit()
+            whitespace_encoding = {
+                "Reuters": "+",
+                "AFP": "%20",
+                "Economist": "+",
+                "Bloomberg": "%20",
+                "SCMP": "%20",
+                "Financial Times": "+",
+                "Nikkei" : "+",
+                "Channel News Asia": "%20"
+            }
 
-            elif website_name == "Reuters":
-                # print("Searching Reuters...")
-                top_links_raw = WebDriverWait(driver, 10).until(
-                    EC.presence_of_all_elements_located((By.CSS_SELECTOR, 'a.media-story-card__heading__eqhp9'))
-                )[:top_k]
-                # top_links_raw = driver.find_elements(By.CSS_SELECTOR, 'a.media-story-card__heading__eqhp9')[:top_k]
+            if website_name not in website_searchurls.keys():
+                print("Website not supported")
+                return []
 
-                # Using Selenium to extract the href directly, so no need for BeautifulSoup
-                results_container[i] = [elem.get_attribute('href') for elem in top_links_raw]
-
-                driver.quit()
+            space_char = whitespace_encoding.get(website_name, "+")
+            encoded_query = quote(query).replace("%20", space_char)
+            search_url = website_searchurls[website_name].format(query=encoded_query)
             
-        except Exception as e:
-            print(f"Error encountered in retrieving links: {e}")
-            if driver: driver.quit()
-            return []
+            try:
+                chrome_options = Options()
+                chrome_options.add_argument("--headless")
+                chrome_options.add_argument("--incognito")
+
+                # print("trying to insatll chromedriver")
+                # webdriver_service = Service(ChromeDriverManager().install())
+                # print("installed chromdriver")
+                # driver = webdriver.Chrome(service=webdriver_service, options=chrome_options)
+                driver = webdriver.Chrome(options=chrome_options)
+                # print(f"doing driver get for {website_name}")
+                driver.get(search_url)
+                # print(f"done driver get for {website_name}")
+
+                if website_name == "SCMP":
+                    # print("Searching SCMP...")
+                    top_links_raw = WebDriverWait(driver, 10).until(
+                        EC.presence_of_all_elements_located((By.CSS_SELECTOR, '.ebqqd5k0.css-1r4kaks.ef1hf1w0'))
+                    )[:top_k]
+
+                    # Using Selenium to extract the href directly, so no need for BeautifulSoup
+                    results_container[i] = [elem.get_attribute('href') for elem in top_links_raw]
+
+                    driver.quit()
+                    
+                elif website_name == "Financial Times":
+                    top_links_raw = WebDriverWait(driver, 10).until(
+                        EC.presence_of_all_elements_located((By.CSS_SELECTOR, 'a.js-teaser-heading-link'))
+                    )[:top_k]
+
+                    # Using Selenium to extract the href directly, so no need for BeautifulSoup
+                    results_container[i] = [elem.get_attribute('href') for elem in top_links_raw]
+
+                    driver.quit()
+
+                elif website_name == "Reuters":
+                    # print("Searching Reuters...")
+                    top_links_raw = WebDriverWait(driver, 10).until(
+                        EC.presence_of_all_elements_located((By.CSS_SELECTOR, 'a.media-story-card__heading__eqhp9'))
+                    )[:top_k]
+                    # top_links_raw = driver.find_elements(By.CSS_SELECTOR, 'a.media-story-card__heading__eqhp9')[:top_k]
+
+                    # Using Selenium to extract the href directly, so no need for BeautifulSoup
+                    results_container[i] = [elem.get_attribute('href') for elem in top_links_raw]
+
+                    driver.quit()
+                elif website_name == "Nikkei":
+                    base_url = base_urls[website_name]  # Get the base URL for Nikkei Asia
+                    top_links_raw = WebDriverWait(driver, 10).until(
+                        EC.presence_of_all_elements_located((By.CSS_SELECTOR, '.card-article__headline a'))
+                    )[:top_k]
+
+                    # Append the base URL to each relative URL
+                    results_container[i] = [elem.get_attribute('href') for elem in top_links_raw]
+
+                    driver.quit()
+                    
+                elif website_name == "Channel News Asia":
+                    top_links_raw = WebDriverWait(driver, 10).until(
+                        EC.presence_of_all_elements_located((By.CSS_SELECTOR, '.hit-name a'))
+                    )[:top_k]
+
+                    results_container[i] = [elem.get_attribute('href') for elem in top_links_raw]
+
+                    driver.quit()
+                elif website_name == "Economist":
+                    top_links_raw = WebDriverWait(driver, 10).until(
+                        EC.presence_of_all_elements_located((By.CSS_SELECTOR, '.css-1q84jwp.e1i33f220 ._search-result')))[:top_k]
+
+                    results_container[i] = [elem.get_attribute('href') for elem in top_links_raw]
+
+                    driver.quit()
+
+                
+            except Exception as e:
+                # print(f"Error encountered in retrieving links for website {website_name} and query {query}: {e}")
+                if driver: driver.quit()
+                return []
 
     def othernews_search(self, query: str, index: int, indiv_results: dict):
         '''
@@ -238,7 +297,9 @@ class SearchManager():
         3. We return the relevant articles and their full content compiled into a document
         3a. We write all the relevant articles and their URLs into a document with a brief description of the article into relevant_infometa_others.txt
         '''
-        sources = ["Financial Times", "SCMP", "Reuters"]
+        # sources = ["Financial Times", "SCMP", "Reuters", "Nikkei", "Channel News Asia", "Economist"]
+        sources = ["Financial Times", "SCMP", "Reuters", "Channel News Asia", "Economist"]
+        # sources = ["Nikkei", "Channel News Asia", "Economist"]
 
         total_othernews = ""
 
@@ -253,14 +314,15 @@ class SearchManager():
 
             all_links_threads.append(curr_thread)
 
-        for thread in tqdm(all_links_threads, desc="othernews_search link getting thread joining"):
-            thread.join(timeout=60)
+        # for thread in tqdm(all_links_threads, desc="othernews_search link getting thread joining"):
+        for thread in all_links_threads:
+            thread.join(timeout=150)
 
         # rephrased_queries = []
 
         for i in range(len(sources)):
-            if (len(all_links_result_container[i]) == 0):
-                print(f"No links found for {sources[i]} search for query [{query}]")
+            # if (len(all_links_result_container[i]) == 0):
+                # print(f"No links found for {sources[i]} search for query [{query}]")
                 # print(f"new query should be: {self.rephrase_query(query, sources[i])}, old query was: {query}")
                 # rephrased_queries.extend(self.rephrase_query(query, sources[i]))
             all_links.extend(all_links_result_container[i])
@@ -284,8 +346,9 @@ class SearchManager():
 
             threads.append(curr_thread)
 
-        for thread in tqdm(threads, desc="othernews_search thread joining"):
-            thread.join()
+        # for thread in tqdm(threads, desc="othernews_search thread joining"):
+        for thread in threads:
+            thread.join(75) #THIS IS NEW 23 NOV 2023
 
         for i in range(len(all_links)):
             if result_container[i] != "NRC":
@@ -305,6 +368,14 @@ class SearchManager():
             if article_response == None: return "NRC"
             
             article_content = article_response['article']['text']
+
+            #we need to check and see if the article is too long, then we pass it to summarise
+            article_tokens = midgard.get_num_tokens(article_content)
+            while article_tokens > 15000:
+                print(f"content for article {article_url} is too long at {article_tokens}, summarising...")
+                article_content = midgard.summarise(article_content, chosen_model="gpt-4", to_print=False) #use a slightly cheaper model for this. we still want to retain the information, but we are working on a lot of information.
+                article_tokens = midgard.get_num_tokens(article_content)
+                print(f"new content length is {article_tokens} for article {article_url}")
 
             # return self.get_relevant(query, article_content)
             res = self.get_relevant(query, article_content)
@@ -349,8 +420,8 @@ class SearchManager():
                         if len(self.search_calltimes) == 2:
                             # print(f"SEARCH CALLTIMES: {self.search_calltimes}")
                             time_diff = time.time() - self.search_calltimes[0]
-                            if time_diff < 1.1:
-                                sleep_time = 1.1 - time_diff
+                            if time_diff < 1.5:
+                                sleep_time = 1.5 - time_diff
                                 # print(f"SLEEPING FOR {sleep_time} SECONDS")
                                 time.sleep(sleep_time)
 
@@ -381,7 +452,6 @@ class SearchManager():
             print(f"Error in ujeebu extract {e}")
             return None
 
-
     def get_relevant(self, query: str, information: str):
         '''
         Checks for information relevance against the query.
@@ -390,8 +460,8 @@ class SearchManager():
         system_init = "You are RelevanceGPT. You are an AGI that takes in a query and a block of information and returns the relevant information from the block of information. If there is no relevant information in the block of information, you must return the acronym NRC. If there is relevant information, you must return the relevant information. You should be lenient with your determination of whether something is related or not. If it could be slightly potentially useful in answering the question, return the relevant information. The query and block of information are given below. You must ignore all advertisement information from the news sites where you are getting the information from.\n\n"
 
         prompt = "You are given a query and the description of an article. If there is no relevant content in the article, you must return the acronym NRC. If there is relevant content, you must extract the relevant content, and you MUST keep all details from the content. You MUST also ignore all advertising material if they are not relevant. The query and content are given below.\n\nQuery: " + query + "\n\Description: " + information
-
-        return helpers.call_gpt_single(system_init, prompt, function_name="get_relevant", chosen_model="gpt-3.5-turbo-16k", to_print=False)
+        
+        return helpers.call_gpt_single(system_init, prompt, function_name="get_relevant", chosen_model="gpt-3.5-turbo-1106", to_print=False, try_limit=2)
     
     def rephrase_query(self, query: str, source: str):
         system_init = f"You are SearchGPT. You are a genius at understanding how searching news websites work, and how to build and adjust queries in order to get the result that you want."
@@ -431,14 +501,14 @@ class SearchManager():
 
         query_kw = create_keywords(query)
 
-        print(f"NewsAPI search:{query_kw}")
+        # print(f"NewsAPI search:{query_kw}")
 
         #get the current date and go 3 weeks back
         today = datetime.today()
         three_weeks_ago = today - timedelta(weeks=3)
         formatted_date = three_weeks_ago.strftime("%Y-%m-%d")
 
-        print(formatted_date)
+        # print(formatted_date)
 
         try:
             response = newsapi.get_everything(
@@ -462,12 +532,12 @@ class SearchManager():
         with concurrent.futures.ThreadPoolExecutor() as executor:
             futures = [executor.submit(self.get_relevant_helper, query, article['content']) for article in response['articles']]
 
-            for future in tqdm(concurrent.futures.as_completed(futures, timeout=30)):
+            for future in concurrent.futures.as_completed(futures, timeout=30):
                 if future.result != "NRC":
                     relevant_count += 1
                 relevant_information += f"{future.result()}\n\n" if future.result != "NRC" else ""
 
-        print(f"Got {relevant_count} relevant articles out of {len(response['articles'])} articles for query {query}")
+        # print(f"Got {relevant_count} relevant articles out of {len(response['articles'])} articles for query {query}")
 
         return relevant_information
 
@@ -538,7 +608,6 @@ search_query: A list of search queries that will best return results for resourc
 '''
 def query_to_search(query):
     print("Transforming user query to search query...")
-    openai.api_key = os.getenv("OPENAI_API_KEY")
 
     system_init = "You are IdentifyGPT. You are an AGI that takes in a question and identifies seperate content topics in the question. If there are multiple topics that need to be searched seperately within the question, seperate them with a semicolon."
 
@@ -547,13 +616,11 @@ def query_to_search(query):
     retry_count = 5
     while retry_count:
         try:
-            response = openai.ChatCompletion.create(
-                model="gpt-4",
-                messages=[
-                    {"role": "system", "content": system_init},
-                    {"role": "user", "content": prompt}
-                ]
-            )
+            response = client.chat.completions.create(model="gpt-4",
+            messages=[
+                {"role": "system", "content": system_init},
+                {"role": "user", "content": prompt}
+            ])
             break
         except Exception as e:
             print(f"Error encountered: {e}. Retrying in 10 seconds...")
@@ -580,13 +647,11 @@ def simple_ask(information, query):
 
     prompt = "You are given a block of information and a query. You must use the information provided to answer the query. The query and block of information are given below.\n\nQuery: " + query + "\n\nInformation: " + information
 
-    response = openai.ChatCompletion.create(
-        model=model,
-        messages=[
-            {"role": "system", "content": system_init},
-            {"role": "user", "content": prompt}
-        ]
-    )
+    response = client.chat.completions.create(model=model,
+    messages=[
+        {"role": "system", "content": system_init},
+        {"role": "user", "content": prompt}
+    ])
 
     return response.choices[0].message.content
 
@@ -607,13 +672,11 @@ def create_keywords(query):
     '''
     while 1:
         try:
-            response = openai.ChatCompletion.create(
-                model=model,
-                messages=[
-                    {"role": "system", "content": querykw_init},
-                    {"role": "user", "content": prompt}
-                ]
-            )
+            response = client.chat.completions.create(model=model,
+            messages=[
+                {"role": "system", "content": querykw_init},
+                {"role": "user", "content": prompt}
+            ])
 
             return response.choices[0].message.content
         except Exception as e:

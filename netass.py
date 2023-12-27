@@ -10,17 +10,18 @@ Generally speaking only one function calls things in this file, which is the net
 import helpers
 
 #installed libs
-import openai
+from openai import OpenAI
+import os
+
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 #native libs
-import os
 import concurrent.futures
 import tkinter as tk
 
 from time import sleep
 
 #initialize all keys and relevant information
-openai.api_key = os.getenv("OPENAI_API_KEY")
 chosen_model = "gpt-4"
 
 '''
@@ -77,14 +78,12 @@ def plan_approach(question, tools=None):
     try_count = 1
     while try_count <= 10:
         try:
-            response = openai.ChatCompletion.create(
-                model=chosen_model,
-                messages=[
-                    {"role": "system", "content": system_init},
-                    {"role": "user", "content": prompt}
-                ],
-                temperature=0.9
-            )
+            response = client.chat.completions.create(model=chosen_model,
+            messages=[
+                {"role": "system", "content": system_init},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.9)
             break
         except Exception as e:
             rest_time = 10 * try_count
@@ -159,14 +158,12 @@ def parse_plan(plan, question, tools=None):
     try_count = 1
     while try_count <= 10:
         try:
-            response = openai.ChatCompletion.create(
-                model=chosen_model,
-                messages=[
-                    {"role": "system", "content": system_init},
-                    {"role": "user", "content": prompt}
-                ],
-                temperature=0.9
-            )
+            response = client.chat.completions.create(model=chosen_model,
+            messages=[
+                {"role": "system", "content": system_init},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.9)
             break
         except Exception as e:
             rest_time = 10 * try_count
@@ -197,14 +194,12 @@ def action_to_searchquery(action, question):
     try_count = 1
     while try_count <= 10:
         try:
-            response = openai.ChatCompletion.create(
-                model=chosen_model,
-                messages=[
-                    {"role": "system", "content": system_init},
-                    {"role": "user", "content": prompt}
-                ],
-                temperature=0.9
-            )
+            response = client.chat.completions.create(model=chosen_model,
+            messages=[
+                {"role": "system", "content": system_init},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.9)
             break
         except Exception as e:
             rest_time = 10 * try_count
@@ -284,7 +279,6 @@ def na_prep(information, question, specific_persona):
     return total_analysis
 
 def get_material_facts(information, question, specific_persona):
-    openai.api_key = os.getenv("OPENAI_API_KEY")
     print("getting material facts...")
 
     persona_init = "I want you to act as a top-tier analyst in one of the world's leading geopolitical think-tanks. You directly provide actionable insights to the world's most powerful leaders."
@@ -308,21 +302,18 @@ def get_material_facts(information, question, specific_persona):
 
     ask_prompt = start_prompt + "\n\n" + ask_prompt
 
-    response = openai.ChatCompletion.create(
-        model=chosen_model,
-        messages=[
-            {"role": "system", "content": persona_init},
-            {"role": "user", "content": ask_prompt}
-        ],
-        temperature=0.9
-    )
+    response = client.chat.completions.create(model=chosen_model,
+    messages=[
+        {"role": "system", "content": persona_init},
+        {"role": "user", "content": ask_prompt}
+    ],
+    temperature=0.9)
 
     print("material facts obtained")
     print(response.usage)
     return response.choices[0].message.content
 
 def get_force_catalysts(information, question, specific_persona):
-    openai.api_key = os.getenv("OPENAI_API_KEY")
     print("getting force catalysts...")
 
     persona_init = "I want you to act as a top-tier analyst in one of the world's leading geopolitical think-tanks. You directly provide actionable insights to the world's most powerful leaders."
@@ -343,13 +334,11 @@ def get_force_catalysts(information, question, specific_persona):
             {question}
             """
 
-    response = openai.ChatCompletion.create(
-        model=chosen_model,
-        messages=[
-            {"role": "system", "content": persona_init},
-            {"role": "user", "content": prompt}
-        ]
-    )
+    response = client.chat.completions.create(model=chosen_model,
+    messages=[
+        {"role": "system", "content": persona_init},
+        {"role": "user", "content": prompt}
+    ])
 
     print("force catalysts obtained")
     print(response.usage)
@@ -379,13 +368,11 @@ def get_constraints_friction(information, question, specific_persona):
             {question}
             """
 
-    response = openai.ChatCompletion.create(
-        model=chosen_model,
-        messages=[
-            {"role": "system", "content": persona_init},
-            {"role": "user", "content": prompt}
-        ]
-    )
+    response = client.chat.completions.create(model=chosen_model,
+    messages=[
+        {"role": "system", "content": persona_init},
+        {"role": "user", "content": prompt}
+    ])
 
     print("constraints and friction obtained")
     print(response.usage)
@@ -419,14 +406,12 @@ def get_alliance_law(information, question, specific_persona):
             """
 
 
-    response = openai.ChatCompletion.create(
-        model=chosen_model,
-        messages=[
-            {"role": "system", "content": persona_init},
-            {"role": "user", "content": prompt}
-        ],
-        temperature=0.9
-    )
+    response = client.chat.completions.create(model=chosen_model,
+    messages=[
+        {"role": "system", "content": persona_init},
+        {"role": "user", "content": prompt}
+    ],
+    temperature=0.9)
 
     print("alliances and laws obtained")
     print(response.usage)
@@ -471,14 +456,12 @@ def projection(prep, information, question, specific_persona):
 
     prompt = f"{persona_init}\n\n{prompt}"
 
-    response = openai.ChatCompletion.create(
-        model=chosen_model,
-        messages=[
-            {"role": "system", "content": persona_init},
-            {"role": "user", "content": prompt}
-        ],
-        temperature=1
-    )
+    response = client.chat.completions.create(model=chosen_model,
+    messages=[
+        {"role": "system", "content": persona_init},
+        {"role": "user", "content": prompt}
+    ],
+    temperature=1)
 
     # for chunk in response:
         # stream_text.insert(tk.END, chunk)
@@ -519,18 +502,16 @@ def out_of_box(prep, analysis, information, question, specific_persona):
 
     prompt = f"{persona_init}\n\n{prompt}"
 
-    response = openai.ChatCompletion.create(
-        model=chosen_model,
-        messages=[
-            {"role": "system", "content": persona_init},
-            {"role": "user", "content": prompt},
-            {"role": "assistant", "content": analysis},
-            {"role": "user", "content": "I would like you consider a perspective no one has considered before. Can you give me a more out of the box analysis? Be as specific as you can about the impact, while citing statistics from the information provided. You must also give me 4 more cascading events that will happen in a chain after your new out of the box prediction."}
-        ],
-        temperature=1, #1.25 is way too fucking high. it starts speaking gibberish
-        presence_penalty=0.25,
-        frequency_penalty=0.25,
-    )
+    response = client.chat.completions.create(model=chosen_model,
+    messages=[
+        {"role": "system", "content": persona_init},
+        {"role": "user", "content": prompt},
+        {"role": "assistant", "content": analysis},
+        {"role": "user", "content": "I would like you consider a perspective no one has considered before. Can you give me a more out of the box analysis? Be as specific as you can about the impact, while citing statistics from the information provided. You must also give me 4 more cascading events that will happen in a chain after your new out of the box prediction."}
+    ],
+    temperature=1, #1.25 is way too fucking high. it starts speaking gibberish
+    presence_penalty=0.25,
+    frequency_penalty=0.25)
 
     # for chunk in response:
         # stream_text.insert(tk.END, chunk)
