@@ -185,3 +185,8 @@ ruby_env
 test.ipynb
 
 .DS_Store
+
+call_notes/
+
+#dump dir for all outputs
+output/
