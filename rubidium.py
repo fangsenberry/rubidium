@@ -150,7 +150,13 @@ class Rubidium():
                 title = title.strip('"')
                 pass
 
-        finished_report = self.create_report_docx(title, question, prep_result, first_layer, second_layer, research)
+        try:
+            finished_report = self.create_report_docx(title, question, prep_result, first_layer, second_layer, research)
+        except Exception as e:
+            print(f"error creating report docx: {e}")
+            print("saving as .txt instead...")
+            with open(f"{title}/{title} report.txt", "w") as f:
+                f.write(f"QUESTION:\n{question}\n\nNA PREP RESULTS:\n{prep_result}\n\nFIRST LAYER:\n{first_layer}\n\nSECOND LAYER:\n{second_layer}\n\nRESEARCH:\n{research}")
 
         print("done with generated report")
 
@@ -160,8 +166,6 @@ class Rubidium():
 
         with open(f"{title}/{title} article.txt", "w") as f:
             f.write(f"{article}")
-            
-        
 
         #start generating the questions here (REMOVED FOR NOW, WILL BE SEPERATE COMPONENT, USED WHEN NECESSARY)
         # question_corpus = f"The question that the report answers:\n{question}\n\nNet Assessment Aspects and Preparation:\n{prep_result}\n\nFirst Layer of the Net Assessment Projection:\n{first_layer}\n\nA different, divergent perspective on the Net Assessment Projection:\n{second_layer}"
