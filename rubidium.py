@@ -83,7 +83,7 @@ class Rubidium():
             max_key = ""
 
             for pkey, pval in personas.items():
-                similarity = helpers.get_similarity(pkey, persona_query)
+                similarity = midgard.get_similarity(pkey, persona_query)
                 # print(similarity, pkey)
                 if similarity > max_sim:
                     max_key = pkey
@@ -137,7 +137,7 @@ class Rubidium():
             try_count -= 1
             try:
                 # Create the directory
-                os.makedirs(title)
+                os.makedirs(f"output/{title}")
                 break
             except FileExistsError:
                 # directory already exists
@@ -238,13 +238,13 @@ class Rubidium():
         news_searcher = onsearch.SearchManager()
         research = news_searcher.search_list(pruned_searches)
 
-        summary = helpers.summarise(research)
+        summary = midgard.summarise(research)
 
-        print(f"length of initial summary: {helpers.get_num_tokens(summary)}")
-        while helpers.get_num_tokens(summary) > 8000:
-            print(f"summary length for this loop starting at {helpers.get_num_tokens(summary)}")
-            summary = helpers.summarise(summary)
-            print(f"summary length is now {helpers.get_num_tokens(summary)}")
+        print(f"length of initial summary: {midgard.get_num_tokens(summary)}")
+        while midgard.get_num_tokens(summary) > 8000:
+            print(f"summary length for this loop starting at {midgard.get_num_tokens(summary)}")
+            summary = midgard.summarise(summary)
+            print(f"summary length is now {midgard.get_num_tokens(summary)}")
 
         return summary, relevant_call_notes
 
@@ -329,7 +329,7 @@ class Rubidium():
         for similarity, content in sorted_chunks:
             similar_content += f"{content}\n\n"
 
-        print(f"tokens for relevance: {helpers.get_num_tokens(similar_content)}")
+        print(f"tokens for relevance: {midgard.get_num_tokens(similar_content)}")
 
         return similar_content
     
@@ -443,7 +443,7 @@ class Rubidium():
             {information}
             """
         
-        return helpers.call_gpt_single(self.system_init, prompt, function_name="get_material_facts")
+        return midgard.call_gpt_single(self.system_init, prompt, function_name="get_material_facts")
 
     def get_force_catalysts(self, information, question, specific_persona):
         prompt = f"""
@@ -462,7 +462,7 @@ class Rubidium():
             {question}
             """
         
-        return helpers.call_gpt_single(self.system_init, prompt, function_name="get_force_catalysts")
+        return midgard.call_gpt_single(self.system_init, prompt, function_name="get_force_catalysts")
         
     def get_constraints_friction(self, information, question, specific_persona):
         prompt = f"""
@@ -481,7 +481,7 @@ class Rubidium():
             {question}
             """
         
-        return helpers.call_gpt_single(self.system_init, prompt, function_name="get_constraints_friction")
+        return midgard.call_gpt_single(self.system_init, prompt, function_name="get_constraints_friction")
 
     def get_alliance_law(self, information, question, specific_persona):
         prompt = f"""
@@ -504,7 +504,7 @@ class Rubidium():
             {question}
             """
         
-        return helpers.call_gpt_single(self.system_init, prompt, function_name="get_alliance_law")
+        return midgard.call_gpt_single(self.system_init, prompt, function_name="get_alliance_law")
 
     def first_layer(self, prep_result, research, question, relevant_call_notes, specific_persona):
         prompt = f"""
@@ -537,7 +537,7 @@ class Rubidium():
                 {research}
                 """
 
-        return helpers.call_gpt_single(self.system_init, prompt, function_name="first_layer")
+        return midgard.call_gpt_single(self.system_init, prompt, function_name="first_layer")
 
     def second_layer(self, prep_result, first_layer, research, question, relevant_call_notes, specific_persona):
         #TODO:
@@ -582,12 +582,12 @@ class Rubidium():
             {"role": "user", "content": second_layer_prompt},
         ]
 
-        return helpers.call_gpt_multi(messages, function_name="second_layer")
+        return midgard.call_gpt_multi(messages, function_name="second_layer")
 
     def get_title(self, question):
         prompt = f"I want you to come up with a short and succint yet impactful title of not more than 8 words for the report for the following Net Assessment question: {question}"
 
-        return helpers.call_gpt_single(self.system_init, prompt, function_name="get_title")
+        return midgard.call_gpt_single(self.system_init, prompt, function_name="get_title")
     
     def plan_approach(self, question):
         prompt = f"""
@@ -614,7 +614,7 @@ class Rubidium():
         With all that information, I have enough to come up with the answer.
         """
 
-        return helpers.call_gpt_single(self.system_init, prompt, function_name="plan_approach")
+        return midgard.call_gpt_single(self.system_init, prompt, function_name="plan_approach")
 
     def parse_plan(self, action_plan, question):
         system_init = f"""You are ParseGPT. You are an AI that specialises in extracting plans from texts, and formatting them in a specified format."""
@@ -665,7 +665,7 @@ class Rubidium():
         ---END OF EXAMPLE OUTPUT---
         """
 
-        return helpers.call_gpt_single(system_init, prompt, function_name="parse_plan").split("\n")
+        return midgard.call_gpt_single(system_init, prompt, function_name="parse_plan").split("\n")
 
     def action_to_searchquery(self, action, question):
         system_init = f"""You are SearchGPT. You are an AI that specialises in transforming actions into search queries."""
@@ -677,7 +677,7 @@ class Rubidium():
         The question is: {question}
         """
 
-        return helpers.call_gpt_single(system_init, prompt, function_name="action_to_searchquery", to_print=False).split(';')
+        return midgard.call_gpt_single(system_init, prompt, function_name="action_to_searchquery", to_print=False).split(';')
 
     def prune_searches(self, search_queries):
         search_queries_string = ""
@@ -729,7 +729,7 @@ class Rubidium():
         ---END OF PROVIDED SEARCH QUERIES---
         """
 
-        return helpers.call_gpt_single(system_init, prompt, function_name="prune_searches").split("\n")
+        return midgard.call_gpt_single(system_init, prompt, function_name="prune_searches").split("\n")
 
     def create_report_docx(self, title: str, question: str, prep_result: str, first_projection: str, second_projection: str, information: str):
         '''
@@ -795,7 +795,7 @@ class Rubidium():
         You MUST only return the raw text of the transformed article, and nothing else.
         """
 
-        return helpers.call_gpt_single(self.system_init, prompt, function_name="create_article")
+        return midgard.call_gpt_single(self.system_init, prompt, function_name="create_article")
 
     def generate_questions(self, report: str):
         '''
@@ -804,7 +804,7 @@ class Rubidium():
         '''
         prompt = f"Research and reports reveal more areas that we need to take a closer look at. I will give you a Net Assessment Analysis report, and you will identify what areas should be looked into and analysed further. These areas should be measured by its scale of impact and significance on the global, macroeconomic playing field. You must then transform these areas of interest into analysis questions to be given to an analyst. You must return this list as a newline seperated list of questions, and you must also provide an explanation for why you think each question is important, and why, as a Net Assessment Analyst, this proposed question is signficant and impactful. You MUST return at least 10 questions. The report has been given below:\n\n{report}"
         
-        return helpers.call_gpt_single(self.system_init, prompt, function_name="generate_questions")
+        return midgard.call_gpt_single(self.system_init, prompt, function_name="generate_questions")
 
     def choose_questions(self, report: str, questions: str, top_k: int = 3):
         '''
@@ -812,7 +812,7 @@ class Rubidium():
         '''
         prompt = f"You have been given a set of Net Assessment questions to follow up on and the report they came from. You are to determine the top {top_k} most important questions, as well as explain why they are the most important. The questions and report have been provided below:\n\n{questions}"
         
-        return helpers.call_gpt_single(self.system_init, prompt, function_name="choose_questions")
+        return midgard.call_gpt_single(self.system_init, prompt, function_name="choose_questions")
     
     def create_cover_photo(k: int = 3):
         '''
@@ -1160,7 +1160,7 @@ class ActorCriticRuby(Rubidium):
             
             #TODO: need to give context of old feedback? probably. just implement it as chat hist or otherwise.
             
-            feedback = helpers.call_gpt_single(self.critic_system_init, critic_prompt, function_name=f"get_material_facts (critic) iteration {i}")
+            feedback = midgard.call_gpt_single(self.critic_system_init, critic_prompt, function_name=f"get_material_facts (critic) iteration {i}")
             
             with open("feedback_mf.txt", "w") as f:
                 f.write(feedback)
@@ -1187,7 +1187,7 @@ class ActorCriticRuby(Rubidium):
             {to_criticise}
             """
             
-            to_criticise = helpers.call_gpt_single(self.actor_system_init, actor_prompt, function_name=f"get_material_facts (actor) iteration {i}")
+            to_criticise = midgard.call_gpt_single(self.actor_system_init, actor_prompt, function_name=f"get_material_facts (actor) iteration {i}")
             
         return to_criticise
     
@@ -1242,7 +1242,7 @@ class ActorCriticRuby(Rubidium):
             
             #TODO: need to give context of old feedback? probably. just implement it as chat hist or otherwise.
             
-            feedback = helpers.call_gpt_single(self.critic_system_init, critic_prompt, function_name=f"get_force_catalysts (critic) iteration {i}")
+            feedback = midgard.call_gpt_single(self.critic_system_init, critic_prompt, function_name=f"get_force_catalysts (critic) iteration {i}")
             
             with open("feedback_fc.txt", "w") as f:
                 f.write(feedback)
@@ -1269,7 +1269,7 @@ class ActorCriticRuby(Rubidium):
             {to_criticise}
             """
             
-            to_criticise = helpers.call_gpt_single(self.actor_system_init, actor_prompt, function_name=f"get_force_catalysts (actor) iteration {i}")
+            to_criticise = midgard.call_gpt_single(self.actor_system_init, actor_prompt, function_name=f"get_force_catalysts (actor) iteration {i}")
             
         return to_criticise
     
@@ -1328,7 +1328,7 @@ class ActorCriticRuby(Rubidium):
             {question}
             """
             
-            feedback = helpers.call_gpt_single(self.critic_system_init, critic_prompt, function_name=f"get_constraints_friction (critic) iteration {i}")
+            feedback = midgard.call_gpt_single(self.critic_system_init, critic_prompt, function_name=f"get_constraints_friction (critic) iteration {i}")
             
             actor_prompt = f"""
             Your goal as the Actor is to work on criticism that the Critic has provided you with, and update the current content that you are working on. Here was the content you gave for the previous iteration.
@@ -1349,7 +1349,7 @@ class ActorCriticRuby(Rubidium):
             {feedback}
             """
             
-            to_criticise = helpers.call_gpt_single(self.actor_system_init, actor_prompt, function_name=f"get_constraints_friction (actor) iteration {i}")
+            to_criticise = midgard.call_gpt_single(self.actor_system_init, actor_prompt, function_name=f"get_constraints_friction (actor) iteration {i}")
             
         return to_criticise
             
@@ -1474,7 +1474,7 @@ class ActorCriticRuby(Rubidium):
             {question}
             """
             
-            feedback = helpers.call_gpt_single(self.critic_system_init, critic_prompt, function_name=f"get_constraints_friction (critic) iteration {i}")
+            feedback = midgard.call_gpt_single(self.critic_system_init, critic_prompt, function_name=f"get_constraints_friction (critic) iteration {i}")
             
             actor_prompt = f"""
             Your goal as the Actor is to work on criticism that the Critic has provided you with, and update the current content that you are working on. Here was the content you gave for the previous iteration.
@@ -1495,7 +1495,7 @@ class ActorCriticRuby(Rubidium):
             {feedback}
             """
             
-            to_criticise = helpers.call_gpt_single(self.actor_system_init, actor_prompt, function_name=f"get_constraints_friction (actor) iteration {i}")
+            to_criticise = midgard.call_gpt_single(self.actor_system_init, actor_prompt, function_name=f"get_constraints_friction (actor) iteration {i}")
             
         return to_criticise
      
@@ -1546,7 +1546,7 @@ class ActorCriticRuby(Rubidium):
         {question}
         """
         
-        return helpers.call_gpt_single(self.system_init, prompt, function_name="infer_value")
+        return midgard.call_gpt_single(self.system_init, prompt, function_name="infer_value")
             
     def first_layer(self, prep_result, research, question, relevant_call_notes, specific_persona):
         base = super().first_layer(prep_result, research, question, relevant_call_notes, specific_persona)
@@ -1619,7 +1619,7 @@ class ActorCriticRuby(Rubidium):
             {question}
             """
             
-            feedback = helpers.call_gpt_single(self.critic_system_init, critic_prompt, function_name=f"first_layer (critic) iteration {i}")
+            feedback = midgard.call_gpt_single(self.critic_system_init, critic_prompt, function_name=f"first_layer (critic) iteration {i}")
             
             actor_prompt = f"""
             Your goal as the Actor is to work on criticism that the Critic has provided you with, and update the current content that you are working on. Here was the content you gave for the previous iteration.
@@ -1706,7 +1706,7 @@ class ActorCriticRuby(Rubidium):
             with open(f"first_layer critic {self.recurrence_count}.txt", "w") as f:
                 f.write(feedback)
             
-            to_criticise = helpers.call_gpt_single(self.actor_system_init, actor_prompt, function_name=f"first_layer (actor) iteration {i}")
+            to_criticise = midgard.call_gpt_single(self.actor_system_init, actor_prompt, function_name=f"first_layer (actor) iteration {i}")
             
         return to_criticise
 
@@ -1771,7 +1771,7 @@ class ActorCriticRuby(Rubidium):
             """
         
             
-            feedback = helpers.call_gpt_single(self.critic_system_init, critic_prompt, function_name=f"second_layer (critic) iteration {i}")
+            feedback = midgard.call_gpt_single(self.critic_system_init, critic_prompt, function_name=f"second_layer (critic) iteration {i}")
             
             with open(f"second_layer critic {self.recurrence_count}.txt", "w") as f:
                 f.write(feedback)
@@ -1848,7 +1848,7 @@ class ActorCriticRuby(Rubidium):
             {feedback}
             """
             
-            to_criticise = helpers.call_gpt_single(self.actor_system_init, actor_prompt, function_name=f"second layer (actor) iteration {i}")
+            to_criticise = midgard.call_gpt_single(self.actor_system_init, actor_prompt, function_name=f"second layer (actor) iteration {i}")
             
         return to_criticise
     
@@ -1876,7 +1876,7 @@ class ActorCriticRuby(Rubidium):
         {article}
         """
         
-        return helpers.call_gpt_single(self.system_init, prompt, function_name="create_newsletter_section")
+        return midgard.call_gpt_single(self.system_init, prompt, function_name="create_newsletter_section")
 
 #TODO: prediction nodes should have + 2 recurrence loops. more robust and detailed. it should ALWAYS be expanding as well. 
 #TODO: these parts should all contain the action plan as well, and be iteratively updated
