@@ -127,6 +127,9 @@ class Rubidium():
         print("done with second layer")
 
         title = self.get_title(question)
+        
+        #just some cleaning
+        title = title.strip('"')
 
         print(f"done with title, title is {title}")
         
@@ -143,6 +146,8 @@ class Rubidium():
                 # directory already exists
                 #generate a new title
                 title = self.get_title(question)
+                #just some cleaning
+                title = title.strip('"')
                 pass
 
         finished_report = self.create_report_docx(title, question, prep_result, first_layer, second_layer, research)
