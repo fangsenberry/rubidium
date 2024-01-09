@@ -155,27 +155,34 @@ class Rubidium():
         except Exception as e:
             print(f"error creating report docx: {e}")
             print("saving as .txt instead...")
-            with open(f"{title}/{title} report.txt", "w") as f:
+            with open(f"output/{title}/{title} report.txt", "w") as f:
                 f.write(f"QUESTION:\n{question}\n\nNA PREP RESULTS:\n{prep_result}\n\nFIRST LAYER:\n{first_layer}\n\nSECOND LAYER:\n{second_layer}\n\nRESEARCH:\n{research}")
 
         print("done with generated report")
 
         print("creating article")
         article = self.create_article(title, question, prep_result, first_layer, second_layer, research)
-        # image_prompt = ratatoskr.create_image_prompt(article)
 
-        with open(f"{title}/{title} article.txt", "w") as f:
+        with open(f"output/{title}/{title} article.txt", "w") as f:
             f.write(f"{article}")
-
-        #start generating the questions here (REMOVED FOR NOW, WILL BE SEPERATE COMPONENT, USED WHEN NECESSARY)
-        # question_corpus = f"The question that the report answers:\n{question}\n\nNet Assessment Aspects and Preparation:\n{prep_result}\n\nFirst Layer of the Net Assessment Projection:\n{first_layer}\n\nA different, divergent perspective on the Net Assessment Projection:\n{second_layer}"
-
-        # questions = self.generate_questions(question_corpus)
-        # chosen_questions = self.choose_questions(question_corpus, questions)
-        # with open(f"{title} questions.txt", "w") as f:
-        #     f.write(questions)
-        #     f.write("CHOSEN QUESTIONS:\n")
-        #     f.write(chosen_questions)
+            
+        print("creating newsletter section...")
+            
+            
+        try:
+            newsletter_section = self.create_newsletter_section(article)
+        except Exception as e:
+            print(f"error creating newsletter section: {e}")
+        
+        with open(f"output/{title}/{title} newsletter section.txt", "w") as f:
+            f.write(f"{newsletter_section}")
+            
+        #create the image now
+        print("creating image...")
+        try:
+            self.create_cover_photo(article, f"output/{title}/{title}")
+        except Exception as e:
+            print(f"error creating cover photo: {e}")
 
         return
 
@@ -594,7 +601,7 @@ class Rubidium():
         return midgard.call_gpt_multi(messages, function_name="second_layer")
 
     def get_title(self, question):
-        prompt = f"I want you to come up with a short and succint yet impactful title of not more than 8 words for the report for the following Net Assessment question: {question}"
+        prompt = f"I want you to come up with a short and succint yet impactful title of not more than 8 words for the report for the following Net Assessment question: {question}\n\nYou MUST ONLY RETURN the raw text of the title and nothing else, no quotes, no additional embellishments."
 
         return midgard.call_gpt_single(self.system_init, prompt, function_name="get_title")
     
@@ -781,7 +788,7 @@ class Rubidium():
         information_header = doc.add_heading("Information", level=1)
         doc.add_paragraph(information) #add the information
 
-        file_path = f"{title}/{title}.docx"
+        file_path = f"output/{title}/{title}.docx"
         doc.save(file_path)
         
         return file_path
@@ -823,12 +830,51 @@ class Rubidium():
         
         return midgard.call_gpt_single(self.system_init, prompt, function_name="choose_questions")
     
-    def create_cover_photo(k: int = 3):
+    def create_cover_photo(self, article: str, pathheader: str, k: int = 3):
         '''
         Creates a cover photo for the content.
         
         k is the number of samples to generate for us (human) to consider
         '''
+        
+        #first we create the prompt for the image
+        
+        creation_prompt = f"""
+        I am going to provide you with an article and I want you to give me an inspiration for a cover photo about the topics being discussed. This article will be on the front page of my website. This website is like The Economist in terms of its content, and I would like to emulate the type of cover photos that they post together with their articles. I want the description of the image that you come up with to have a cartoonish style reminiscent cover photos for articles of the New Yorker. Therefore, you should create a description that suits a New Yorker cartoon, and you MUST begin your description of the image with something along the lines of "A New Yorker style cartoon that depicts...". As much as possible, you should focus on the following guiding points while creating the image:
+        
+        1. The image should be not be overcomplicated with too many aspects, as this might overwhelm the reader/viewer.
+        2. The image should be interesting and evoke deep curiousity in the viewer, enticing them to read the article.
+        3. The image must convey the overarching topics and themes represented in the article accurately and concisely.
+        4. You should tend to simpler images without loss of detail.
+        
+        
+        Lastly, you MUST give me the inspiration in two separate parts:
+
+        1. An explanation together with the description of the image that you are suggesting I create for the cover page.
+        2. A pure, description only text of the image. This MUST NOT contain any explanations of why certain aspects of the image are that way, or attempt to explain any symbolism. It must be a factual description of the image only. This description must start with "A New Yorker style cartoon that depicts...".
+        
+        The two seperate parts that I have asked you to output should be split with a |. Your response will be immediately programmatically parsed, so you MUST make sure that you return nothing but the requested response with no preamble. To be clear, you will first give the raw text of part one, and then a |, and then the raw text of part two. This instruction MUST be followed, as failing to do so will cause the entire algorithm to break.
+        
+        Here is the article:
+        {article}
+        """
+        
+        image_prompt = midgard.call_gpt_single(self.system_init, creation_prompt, function_name="create_cover_photo")
+        
+        print(image_prompt)
+        
+        pure_image_prompt = image_prompt.split("|")[1].strip("\n")
+        
+        print(f"PURE:\n\n{pure_image_prompt}")
+        
+        #create k threads and they all call create_image
+        threads = []
+        for i in range(k):
+            threads.append(threading.Thread(target=midgard.create_image, args=(pure_image_prompt, "1792x1024", "hd", f"{pathheader} cover photo {i}.png")))
+            threads[i].start()
+            
+        for i in range(k):
+            threads[i].join()
         
         
 
@@ -1183,6 +1229,8 @@ class ActorCriticRuby(Rubidium):
             
             Given the provided information and question, your goal is to identify the Material Facts that are relevant to analysis of and answering of the question, and return them. You MUST MAKE SURE that you retain all statistical points and relevant technical details. If there are any pieces of data or technical information represented in the text, they must be represented identically in your response. You MUST NOT attempt to answer the question. This phase is the preparation (Material Facts) phase, and there are many more components before the answer is ready to be determined.
             
+            To reiterate, you MUST NOT make any references to the fact that you are playing the role of the Actor in this pair, or that you are operating on criticism from a Critic. You MUST directly perform the analysis, and directly improve on the criticism, without referencing the Actor-Critic framework. Your output, which is the analysis, will be directly given to the reader. They do not know that you are in an Actor Critic pair, and any references to it is detrimental and will confuse readers. You should also not be making any generalised statements for how you are going to approach building the analysis, you MUST simply do it. Any general concluding statements about how the analysis will be helpful because of its nature in the Net Assessment framework is also not conducive, you must remember that the reader wants to understand the analysis, but not how the underlying framework created this analysis. You can explain how the analysis or content you have provided is conducive to understanding the question or this Net Assessment component, and in fact you should do so, but it should be contextualized to the question and context of the analysis.
+            
             Information:
             {information}
             
@@ -1204,9 +1252,6 @@ class ActorCriticRuby(Rubidium):
         base = super().get_material_facts(information, question, specific_persona)
         
         to_criticise = base #just a variable we can update
-        
-        # with open("first_fc.txt", "w") as f:
-            # f.write(base)
         
         for i in tqdm(range(self.recurrence_count)):
             print(f"Recurrence Force Catalysts {i}")    
@@ -1264,6 +1309,8 @@ class ActorCriticRuby(Rubidium):
             {self.force_catalysts_description}
             
             Given the provided information and question, your goal is to identify and explain, in depth, about the Force Catalysts that are relevant to the question and situation, and return them. Remember that your output is the content covering the Force Catalysts. The Critic's assessment is criticism that you must take into account, but you don't need to mention the points that the Critic has raised; you simply need to listen to the feedback and return the improved output. You should not make any statements as to how you are using Force Catalysts, but rather you should just do it, and identify what the Force Catalysts are. You MUST MAKE SURE that you retain all statistical points and relevant technical details. If there are any pieces of data or technical information represented in the text, they must be represented identically in your response. Generally speaking, you should be expanding and adjusting your last iteration, not decreasing or minimizing it. You should NEVER remove detail from the original piece of text. You should always be as verbose as possible. You must retain all numbers and/or statistics, and detail from the information that you consider relevant. You must also keep all names. You MUST NOT attempt to answer the question. This phase is the preparation (Force Catalysts) phase, and there are many more components before the answer is ready to be determined.
+            
+            To reiterate, you MUST NOT make any references to the fact that you are playing the role of the Actor in this pair, or that you are operating on criticism from a Critic. You MUST directly perform the analysis, and directly improve on the criticism, without referencing the Actor-Critic framework. Your output, which is the analysis, will be directly given to the reader. They do not know that you are in an Actor Critic pair, and any references to it is detrimental and will confuse readers. You should also not be making any generalised statements for how you are going to approach building the analysis, you MUST simply do it. Any general concluding statements about how the analysis will be helpful because of its nature in the Net Assessment framework is also not conducive, you must remember that the reader wants to understand the analysis, but not how the underlying framework created this analysis. You can explain how the analysis or content you have provided is conducive to understanding the question or this Net Assessment component, and in fact you should do so, but it should be contextualized to the question and context of the analysis.
             
             Information:
             {information}
@@ -1347,6 +1394,8 @@ class ActorCriticRuby(Rubidium):
             {self.constraints_frictions_description}
             
             Given the provided information and question, your goal is to identify and explain, in depth, about the Constraints and Frictions that are relevant to the question and situation, and return them. Remember that your output is the content covering the Constraints and Frictions. The Critic's assessment is criticism that you must take into account, but you don't need to mention the points that the Critic has raised; you simply need to listen to the feedback and return the improved output. You should not make any statements as to how you are using Constraints and Frictions, but rather you should just do it, and identify what the Constraints and Frictions are. You MUST MAKE SURE that you retain all statistical points and relevant technical details. If there are any pieces of data or technical information represented in the text, they must be represented identically in your response. Generally speaking, you should be expanding and adjusting your last iteration, not decreasing or minimizing it. You should NEVER remove detail from the original piece of text. You should always be as verbose as possible. You must retain all numbers and/or statistics, and detail from the information that you consider relevant. You must also keep all names. You MUST NOT attempt to answer the question. This phase is the preparation (Constraints and Frictions) phase, and there are many more components before the answer is ready to be determined.
+            
+            To reiterate, you MUST NOT make any references to the fact that you are playing the role of the Actor in this pair, or that you are operating on criticism from a Critic. You MUST directly perform the analysis, and directly improve on the criticism, without referencing the Actor-Critic framework. Your output, which is the analysis, will be directly given to the reader. They do not know that you are in an Actor Critic pair, and any references to it is detrimental and will confuse readers. You should also not be making any generalised statements for how you are going to approach building the analysis, you MUST simply do it. Any general concluding statements about how the analysis will be helpful because of its nature in the Net Assessment framework is also not conducive, you must remember that the reader wants to understand the analysis, but not how the underlying framework created this analysis. You can explain how the analysis or content you have provided is conducive to understanding the question or this Net Assessment component, and in fact you should do so, but it should be contextualized to the question and context of the analysis.
             
             Information:
             {information}
@@ -1468,7 +1517,7 @@ class ActorCriticRuby(Rubidium):
 
             By adhering to these detailed criteria, Net Assessors can more effectively evaluate and improve upon the Alliances and Laws components within their analyses, ensuring a deeper and more operationally relevant understanding of these structures' role in shaping the geopolitical landscape.
             
-            {self.constraints_frictions_description}
+            {self.alliances_laws_description}
             
             For each of the criteria above, you should explain where the Actor has gone wrong, as well as explain with a general guideline how he could improve. Remember that is the role of the Critic to provide feedback, but not to act on that feedback. You MUST not be making any points for the Actor, but focus on CRITICISING the Actor's work in order for him to make it better. Therefore, your responses should be criticism, and it is up to the Actor to decide the policy / steps forward that he takes.
             
@@ -1479,7 +1528,7 @@ class ActorCriticRuby(Rubidium):
             The Actor was using the following information to create this analysis:
             {information}
             
-            The Actor was developing their Constraints and Frictions analysis with reference to this question:
+            The Actor was developing their Alliances and Laws analysis with reference to this question:
             {question}
             """
             
@@ -1490,9 +1539,11 @@ class ActorCriticRuby(Rubidium):
             
             You are working on the Alliances and Laws, the fourth step of the Net Assessment Framework. This is a brief description of what Alliances and Laws in the context of Net Assessment are:
             
-            {self.constraints_frictions_description}
+            {self.alliances_laws_description}
             
             Given the provided information and question, your goal is to identify and explain, in depth, about the Alliances and Laws that are relevant to the question and situation, and return them. Remember that your output is the content covering the Alliances and Laws. The Critic's assessment is criticism that you must take into account, but you don't need to mention the points that the Critic has raised; you simply need to listen to the feedback and return the improved output. You should not make any statements as to how you are using Alliances and Laws, but rather you should just do it, and identify what the Alliances and Laws are. You MUST MAKE SURE that you retain all statistical points and relevant technical details. If there are any pieces of data or technical information represented in the text, they must be represented identically in your response. Generally speaking, you should be expanding and adjusting your last iteration, not decreasing or minimizing it. You should NEVER remove detail from the original piece of text. You should always be as verbose as possible. You must retain all numbers and/or statistics, and detail from the information that you consider relevant. You must also keep all names. You MUST NOT attempt to answer the question. This phase is the preparation (Alliances and Laws) phase, and there are many more components before the answer is ready to be determined.
+            
+            To reiterate, you MUST NOT make any references to the fact that you are playing the role of the Actor in this pair, or that you are operating on criticism from a Critic. You MUST directly perform the analysis, and directly improve on the criticism, without referencing the Actor-Critic framework. Your output, which is the analysis, will be directly given to the reader. They do not know that you are in an Actor Critic pair, and any references to it is detrimental and will confuse readers. You should also not be making any generalised statements for how you are going to approach building the analysis, you MUST simply do it. Any general concluding statements about how the analysis will be helpful because of its nature in the Net Assessment framework is also not conducive, you must remember that the reader wants to understand the analysis, but not how the underlying framework created this analysis. You can explain how the analysis or content you have provided is conducive to understanding the question or this Net Assessment component, and in fact you should do so, but it should be contextualized to the question and context of the analysis.
             
             Information:
             {information}
@@ -1779,7 +1830,6 @@ class ActorCriticRuby(Rubidium):
             {first_layer}
             """
         
-            
             feedback = midgard.call_gpt_single(self.critic_system_init, critic_prompt, function_name=f"second_layer (critic) iteration {i}")
             
             with open(f"second_layer critic {self.recurrence_count}.txt", "w") as f:
@@ -1879,7 +1929,7 @@ class ActorCriticRuby(Rubidium):
         
         There should be one part in the newsletter that is hyperlinked back to the report that has been provided to you. You should highlight this part by placing the phrase <HYPERLINK START> at the start and <HYPERLINK END> at the end of the part that you want to hyperlink. You must also bold certain phrases to draw readers' eyes. Please use bolding sparingly, as so not overload the reader.
         
-        The content of the newsletter should quote statistics used to make the points of the analysis as to instill confidence in the reader that our justifications are substantiated. Additionally, the title that you come up with should not be ambiguous. I should be able to directly infer what you are talking about from reading the title. This will allow the reader to better understand the content in this particular section of the newsletter, and better decide whether or not they want to read it. You are only supposed to write ONE section in the newsletter, that manages to capture the essence of what we are trying to analyse/discover with our report. You do not need to cover the entire report, but you should capture its conclusion, and keep in mind the goal of enticing readers to read the full report. of approximately the same length as the example section that has been provided to you above. Do not make any references to how we have done or analysed the question, but rather, you should just transform the content into a newsletter. You should do it such that the content presented in the newsletter stands by itself, and readers are intrigued by the content that you have presented, not by any self serving assertions that we have done Net Assessment well, or how good the report is. You MUST adhere to the approximate length of the newsletter section example above. Too long a newsletter will cause readers to ignore it entirely, which is very, very bad. It MUST be around 100-125 words
+        The content of the newsletter should quote statistics used to make the points of the analysis as to instill confidence in the reader that our justifications are substantiated. Additionally, the title that you come up with should not be ambiguous. I should be able to directly infer what you are talking about from reading the title. This will allow the reader to better understand the content in this particular section of the newsletter, and better decide whether or not they want to read it. You are only supposed to write ONE section in the newsletter, that manages to capture the essence of what we are trying to analyse/discover with our report. You do not need to cover the entire report, but you should capture its conclusion, and keep in mind the goal of enticing readers to read the full report. of approximately the same length as the example section that has been provided to you above. Do not make any references to how we have done or analysed the question, but rather, you should just transform the content into a newsletter. You should do it such that the content presented in the newsletter stands by itself, and readers are intrigued by the content that you have presented, not by any self serving assertions that we have done Net Assessment well, or how good the report is. You MUST adhere to the approximate length of the newsletter section example above. Too long a newsletter will cause readers to ignore it entirely, which is very, very bad. It MUST be around 100-125 words. Your newsletter section should be one paragraph long.
         
         Here is the article that you are generating the newsletter section for:
         {article}
