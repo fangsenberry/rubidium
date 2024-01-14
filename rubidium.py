@@ -52,6 +52,103 @@ class Rubidium():
 
         In terms of historical weight, Net Assessment has proven instrumental in transforming policy and strategic orientations, and in devising new strategic paradigms, testament to its far-reaching impact on global strategic discourse. Thus, Net Assessment is integral to global geopolitical paradigms, long-term safety considerations, and strategic direction, marked by its comprehensive, versatile, opinion-free, and predictive essence."""
         
+        self.material_facts_description = f"""
+        A Material Fact, within the framework of Net Assessment, can be understood as a tangible, empirically-based datum or substantive piece of information, derived from a set of valid observations or studies, which holds significant weight and consequence in comprehensively understanding, measuring, and assessing the dynamics of geopolitical, military, economic, or technological situations involving nation-states.
+
+        These facts hold high relevance, as they can objectively shed light on observable and unobservable elements influencing a situation. Observable material facts could be quantifiable elements such as the number of tanks an adversary possesses, economic conditions, technological advancements among nation-states, and political developments. Unobservable material facts, on the contrary, are often abstract yet critical aspects discerned through associated behaviors, patterns or historical data, despite not being directly observable. These might encompass political will, geopolitical strategies, public sentiments, or underlying motivations. While the way facts are represented on different kinds of media may contain inherent biases, it is important to note that while identifying Material Facts, we must ensure biases are not stripped from the facts, but rather are represented accurately with the facts so that the analyst can account for them, and understand the context in which they were presented.
+
+        Material Facts in the Net Assessment rubric are derived from a broad range of research methodologies, including but not limited to sampling, experimental designs, and dense historical research. Nonetheless, the application of these research designs in complex, multi-factorial contexts of Net Assessment poses unique challenges of representativeness, self-causation, ethical constraints, and multifaceted interactions. Thus, the facts drawn from these research should satisfy discerning scrutiny, unlike cursory assertions devoid of empirical evidence.
+
+        Differentiating these facts from assumptions, interpretations, or generalizations becomes paramount in Net Assessment. Hence, a rigorous examination of the fact's origin, the methodology used to derive it, the extrapolation involved, the sample's representativeness in research, and the acknowledgment of the inherent uncertainties, errors, or limitations in the research are all vital parts of establishing a Material Fact.
+
+        Material Facts also encompass understanding the complex fabric of knowledge and the associated uncertainties. These elements are classified into known knowns (observable and unobservable), known unknowns (elements that could be understood given time or effort), and unknown unknowns (elements that remain elusive). Each of these categories introduces varying degrees of uncertainty that must be critically acknowledged in the construction of a comprehensive Net Assessment.
+
+        In essence, a Material Fact within the context of Net Assessment is an empirically grounded data point or inference significant to the strategic calculation, embedded in a complex interplay of knowledge components, research rigors, associated uncertainties, and varying moments in time. This fact serves as a fundamental building block for constructing a detailed, holistic picture of the situation at hand, contributing significantly to inform strategy and policy decisions.
+        """
+        
+        self.force_catalysts_description = f"""
+        Force Catalysts, in the context of the Net Assessment framework, are key variables influencing state behavior and decision-making across geopolitical and military dynamics. These catalysts drive change, augment or diminish state power, and impact the strategic choices and trajectories of nations. Strategic factors encompass specific characteristics that can shape the direction and intensity of force application, including leadership, resolve, initiative, and entrepreneurship.
+
+        Leadership, a critical force catalyst, signifies the capacity to guide, influence, and command societal and governmental bodies to achieve a state's objectives. Leadership is primarily influenced by factors such as risk propensity, lifetime experiences, decision-making styles, and psychological profiles. Varying leadership attributes significantly influence the likelihood of states engaging in conflicts or maintaining peaceful relations. Leadership styles can significantly vary across different historical periods, international crises, and cultural contexts. These styles further significantly impact negotiation processes, war efforts, and international diplomacy, thereby driving historical courses and geopolitical outcomes.
+
+        Resolve is another force catalyst impacting the outcomes of international conflicts and military performance. This quality embodies a state's determination and willpower to pursue chosen policies or strategies, often amid adversity. It pertains to the steadfast commitment among military forces, governmental bodies, and civilians alike, contributing to strategic successes. Changes in societal norms, technological advancements, and political changes can significantly affect the resolve, reflecting fluctuations in historical periods.
+
+        Initiative, as a force catalyst, represents the capacity to act and make decisions independently to seize strategic opportunities. The importance of initiative can be especially pronounced in modern warfare where quick reflexes, independent decision-making, and astute judgment can determine the success or failure in battlefield situations. Initiative is often heavily influenced by prevailing political cultures and societal norms, making it a dynamic characteristic in different military and geopolitical contexts.
+
+        Finally, entrepreneurship in the context of force catalysts identifies the willingness and ability to innovate, take risks, and leverage arising conditions and opportunities in combat. It encapsulates adaptability, innovative strategies, and exploitation of unanticipated combat circumstances.
+        
+        Identifying Force Catalysts enable analysts to anticipate and prepare for potential changes in the strategic environment.
+
+        Therefore, a comprehensive application of Force Catalysts as part of the Net Assessment framework allows for a more nuanced understanding of the intangible elements that drive geopolitical and military dynamics. These catalysts provide critical insights into the evaluation and prediction of future trends, conflict outcomes, and military performance by examining the interplay of leadership risk propensities, societal structures, technological advancements, and more. Understanding Force Catalysts enables a more holistic approach to geopolitical analysis, factoring in complex, intangible elements alongside conventionally quantifiable indicators of state power. The framework appreciates the fact that the strategic behavior of states is driven not merely by their military and economic capabilities but by the interactions among these multifaceted catalysts.
+        """
+        
+        self.constraints_frictions_description = f"""
+        Constraints are endemic to any analytical or operational endeavor, acting as limitations or boundaries that shape the outcome and processes of activities across a multitude of domains. These impediments or boundary conditions come in various forms and are instrumental in dictating the parameters within which entities operate. These limitations are not confined to shortages in resources but extend to legal and regulatory frameworks, organizational capabilities, cognitive limitations, societal norms, and technological feasibilities. Constraints can be explicit or implicit, reflecting both tangible barriers such as a finite budget and intangible ones like intellectual property rights or cultural taboos.
+
+        Expanding further, constraints encompass several dimensions:
+        1. Epistemic Constraints: These relate to the limitations on what we can know. They include the availability, reliability, and validity of information, intellectual property issues, and barriers to knowledge transfer.
+        2. Resource Constraints: These refer to the physical, financial, and human resources that may restrict an entity's ability to perform its functions.
+        3. Temporal Constraints: Time-related limitations that affect planning and decision-making horizons, as well as strategic foresight capacity.
+        4. Spatial Constraints: Geographical factors including the physical environment, territory, and infrastructure that limit the operational theater.
+        5. Cognitive Constraints: The psychological limitations of humans, such as biases, processing capacity, and heuristics that influence understanding and decision-making.
+        6. Regulatory and Legal Constraints: Laws, regulations, and institutional mechanisms that establish the rules within which organizations and states must operate.
+        7. Social and Cultural Constraints: Norms, values, and customs that can limit choices or prescribe certain behaviors, often tacit and deeply embedded in societies.
+
+        Frictions, in a generalizable sense, comprise the diverse set of unpredictable and often uncontrollable variables that may interfere with the realization of planned processes or the attainment of objectives. These unpredictable elements constitute the dynamic interplay of factors that, individually or in combination, can influence, alter, or disrupt expected outcomes.
+
+        Friction incorporates several facets:
+        1. Environmental Friction: Natural or environmental factors that unpredictably interfere with operations—whether it's weather conditions impacting logistics or natural disasters altering economic landscapes.
+        2. Technical Friction: Failures or unforeseen complications in technology and machinery that hamper efficiency or effectiveness.
+        3. Human Friction: Human factors including individual or collective behavior, reaction under stress, errors of judgment, or interpersonal conflicts.
+        4. Organizational Friction: Inefficiencies, miscommunications, or resistance within a hierarchy or group that impede fluid function.
+        5. Informational Friction: Misinformation, disinformation, or communication gaps that create confusion and hinder coordination.
+        6. Political Friction: Unexpected changes in political landscapes or decisions that alter the strategic environment.
+        7. Economic Friction: Market volatility, economic crises, and fluctuations that can unpredictably impact resource availability and allocation.
+
+        Importance to Net Assessment:
+
+        In the process of Net Assessment, the identification and understanding of Constraints and Frictions is pivotal. These two factors form the substratum on which realistic assessments are structured. Constraints and Frictions help us recognize the bounding conditions of an entity's strategic performance and the uncertainties that could influence its planned paths. By integrating a thorough appraisal of both Constraints and Frictions, Net Assessment enables a multi-faceted evaluation that accounts for the complex interplay of diverse factors, thereby fostering more robust, adaptable, and future-proof strategic initiatives. The thorough appreciation of Constraints and Frictions transcends mere recognition and incorporates proactive planning—thus enabling decision-makers to navigate the intricate web of determinants that dictate the geopolitical and strategic labors of tomorrow. They are not merely hurdles to be acknowledged but instrumental tools in the crafting of strategic resilience and adaptive foresight
+        """
+        
+        self.alliances_laws_description = f"""
+        Alliances
+
+        Alliances are formalized relationships forged between two or more entities, ranging from sovereign nation-states to organizations, corporations, and other establishments, with the primary intent of advancing mutual interests, achieving common goals, and enhancing collective capacities. Although traditionally associated with military coordination and strategic defense, alliances encapsulate a much broader spectrum of cooperative engagements, including economic partnerships, scientific collaborations, and environmental agreements, among others.
+
+        Key characteristics of alliances include:
+
+        1. Contractual Nature: Alliances are typically entrenched within written agreements or treaties that stipulate the commitments, expectations, and frameworks of cooperation among the parties, ensuring clarity and binding authority over the terms of collaboration.
+        2. Mutual Benefit: An essential tenet of alliances is reciprocity, wherein each party expects to derive advantages, whether immediate or long-term, that justify their contribution and involvement in the alliance.
+        3. Resource Sharing: By pooling resources such as knowledge, technology, finances, or personnel, alliances foster a synergistic approach to addressing challenges or capitalizing on opportunities that might be beyond the scope of single entities.
+        4. Diplomatic Influence: Alliances exert influence on the international stage, often swaying diplomatic negotiations and collective actions, and serving as a mechanism to enhance the global stature and reach of their members.
+        5. Strategic Deterrence: Especially in security-oriented alliances, the combined capabilities of members serve as a deterrent against aggressors, thus underpinning regional or global stability.
+        6. Trust and Reliability: The effectiveness of an alliance hinges on the trustworthiness and reliability of its members to fulfill their obligations, particularly in times of need or crisis.
+        7. Adaptability: Alliances must remain adaptable to evolving circumstances, requiring periodic renegotiation and restructuring to remain relevant and effective in a dynamic environment.
+        8. Challenges: Conflicting interests, asymmetry in power dynamics, and changing geopolitical landscapes pose significant challenges to the longevity and cohesion of alliances.
+
+        Laws
+
+        Laws, in their most expansive sense, constitute the codified rules and principles that govern the conduct of individuals, entities, and states within a given framework or system. These laws are established to maintain order, uphold justice, mitigate conflicts, and protect the rights and interests of stakeholders. They emanate from an intricate network of legislations, regulations, conventions, and mutual agreements and encapsulate both domestic and international contexts.
+
+        The essence of laws includes:
+        1. Regulatory Framework: Laws provide the regulatory structure within which entities must operate, delineating permissible actions and sanctions for non-compliance, thus fostering predictability and stability.
+        2. Conflict Resolution: They serve as the formal mechanism for resolving disputes objectively, based on established criteria and principles rather than arbitrary or biased judgments.
+        3. Ethical and Moral Standards: Laws often reflect the ethical and moral standards of a society or community, translating these values into enforceable norms.
+        4. Rights Protection: By establishing legal rights and duties, laws enable the protection of individual, group, and state interests against infringement or harm.
+        5. Accountability: They hold actors accountable for their actions, ensuring that violations are addressed and appropriate remedial actions or penalties are applied.
+        6. Dynamic Evolution: Laws are dynamic, evolving with social, technological, and political developments to remain congruent with contemporary issues and challenges.
+        7. International Order: International laws, including those governing conflicts, facilitate a cooperative international order, provide frameworks for peaceful coexistence, and manage relations between nation-states.
+        8. Implementation Challenges: The application and enforcement of laws can be complex, contingent on effective judicial and administrative systems and the willing adherence by the relevant actors.
+
+        Importance to Net Assessment:
+
+        Understanding the workings of Alliances and Laws is pivotal to the process of Net Assessment. Alliances not only influence strategic decisions and power equations but also reflect the collective resolve and capability to address potential threats or to leverage opportunities in pursuit of shared objectives. They can both enable and constrain actions, based on their nature and dynamics, representing key variables in any comprehensive strategic analysis.
+
+        Laws shape the permissible conduct within and between entities, providing a basis upon which scenarios are planned and actions are justified or criticized. They inform the risk calculus of operational strategies, help anticipate responses to various initiatives, and offer a frame to reconcile international objectives with compliance to normative standards.
+
+        A deep and nuanced understanding of Alliances and Laws, with their multifaceted implications, enables Net Assessors to predict the behavior of actors within the global system, discern potential fault lines or cooperative potentials, and advise on plausible strategic postures. They convey the operational environment’s complexity, which is integral to comprehensive assessments and the formulation of long-term strategic visions.
+        """
+        
         self.metadata_lock = threading.Lock()
         self.curr_metadata_dict = {}
         self.curr_metadata_path = None
@@ -138,20 +235,17 @@ class Rubidium():
         
         research, relevant_call_notes = self.get_research(question)
 
-        persona_query = f"{question}\n\n{research}"
-        specific_persona = self.get_persona(persona_query)
-
         print("done with persona query")
 
-        prep_result = self.na_prep(research, question, relevant_call_notes, specific_persona)
+        prep_result = self.na_prep(research, question, relevant_call_notes)
         
         print("done with na prep")
 
-        first_layer = self.first_layer(prep_result, research, question, relevant_call_notes, specific_persona)
+        first_layer = self.first_layer(prep_result, research, question, relevant_call_notes)
 
         print("done with first layer")
 
-        second_layer = self.second_layer(prep_result, first_layer, research, question, relevant_call_notes, specific_persona)
+        second_layer = self.second_layer(prep_result, first_layer, research, question, relevant_call_notes)
 
         print("done with second layer")
 
@@ -293,8 +387,6 @@ class Rubidium():
             #dump it to the json so changes are visible
             with open(self.current_metadata_path, 'w') as f:
                 json.dump(self.curr_metadata_dict, f, indent=4)
-        
-        print(f"original (final) sq length: {len(search_queries)}, pruned: {len(pruned_searches)}")
 
         news_searcher = onsearch.SearchManager()
         research = news_searcher.search_list(pruned_searches)
@@ -351,7 +443,7 @@ class Rubidium():
 
     def retrieve_call_notes(self, question, action_plan):
         '''
-        This is a temporary measure, where we just look at the entirely of all the call notes in the directory. Needs to be integrated properly into a vector database.
+        This is a temporary measure, where we just look at the entirety of all the call notes in the directory. Needs to be integrated properly into a vector database.
         '''
         directory = "call_notes"
         relative_paths = []
@@ -458,8 +550,7 @@ class Rubidium():
         return relevant_call_notes
             
     def extract_relevant_helper(self, action_plan, question, chunk):
-        prompt = f"""
-        There is a group of analysts who collectively have discussions about the important things going on in the world. They are all well known and successful people in their own fields, and I will be providing you with a portion of the transcript of their discussions. This portion contains content that has been determined to be semantically similar to the question that we are trying to analyse to generate a Net Assessment report. Your goal is to extract the portions that are relevant to creating the Net Assessment report, or helping in the process of analysis in either answering the below provided question, or the steps in the below provided action plan. These relevant portions must be extracted in its entirety and exactly as they are represented in the text. You can remove irrelevant portions. You must keep all names, phrasing, statistics and numbers. You must also preserve the order in which you were given the information. You will be given the question that we are trying to answer with a Net Assessment Report, as well as the plan for answering that question. If you determine that there are relevant portions in the text, you should output ALL of the RELEVANT portions exactly as they were represented in the text. You must not add any additional information. If there is no relevant information that might be helpful in answering the question according to the question or the action plan, then you should return the string "NRC". You MUST only return this string without any quotes, since this will be parsed programmatically.
+        prompt = f"""There is a group of analysts who collectively have discussions about the important things going on in the world. They are all well known and successful people in their own fields, and I will be providing you with a portion of the transcript of their discussions. This portion contains content that has been determined to be semantically similar to the question that we are trying to analyse to generate a Net Assessment report. Your goal is to extract the portions that are relevant to creating the Net Assessment report, or helping in the process of analysis in either answering the below provided question, or the steps in the below provided action plan. These relevant portions must be extracted in its entirety and exactly as they are represented in the text. You can remove irrelevant portions. You must keep all names, phrasing, statistics and numbers. You must also preserve the order in which you were given the information. You will be given the question that we are trying to answer with a Net Assessment Report, as well as the plan for answering that question. If you determine that there are relevant portions in the text, you should output ALL of the RELEVANT portions exactly as they were represented in the text. You must not add any additional information. If there is no relevant information that might be helpful in answering the question according to the question or the action plan, then you should return the string "NRC". You MUST only return this string without any quotes, since this will be parsed programmatically.
         
         Question:
         {question}
@@ -501,8 +592,8 @@ class Rubidium():
         
         return midgard.call_gpt_single(self.system_init, prompt, function_name="researchareas_to_sq", to_print=False).split(";")
 
-    def na_prep(self, information, question, relevant_call_notes, specific_persona):
-        information += f"\n\n{relevant_call_notes}"
+    def na_prep(self, information, question, relevant_call_notes):
+        # information += f"\n\n{relevant_call_notes}"
         def wrapper(func_index):
             funcs = [
                 self.get_material_facts,
@@ -510,7 +601,7 @@ class Rubidium():
                 self.get_constraints_friction,
                 self.get_alliance_law,
             ]
-            return funcs[func_index](information, question, specific_persona)
+            return funcs[func_index](information, question, relevant_call_notes)
 
         # Create a ThreadPoolExecutor with 4 worker threads (as we have 4 tasks)
         with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
@@ -525,32 +616,37 @@ class Rubidium():
 
         return total_analysis
 
-    def get_material_facts(self, information, question, specific_persona):
+    def get_material_facts(self, information, question, relevant_call_notes):
         prompt = f"""
-            You are an expert on the 'Net Assessment' approach to analysis, and you are able to apply this to any topic. The hallmark of your excellence is how you think outside of the box and obtain insights others would never be able to give. {specific_persona} You do not shy away from sensitive topics, and your analysis must provide a clear and accurate view of the situation that you are given.
-
-            The first part of the Net Assessment framework is to identify the Material Facts. Material facts are defined as objective, quantifiable data or information that is relevant to the strategic analysis of a given situation. Material facts provide a basis for the analyst to conduct objective analysis and evaluation of different strategic options. Given the following question and information, identify the material facts in the information that are relevant to the analysis and answering of the question.
-
-            Therefore, given the information and question below, I want you to identiify the Material Facts that are relevant to the question and situation. Provide them in a bulleted list. You must retain all numbers and/or statistics, and detail from the information that you consider relevant. You must also keep all names. You must only provide me with the Material Facts that are relevant to the question, you must not answer the question provided. You must only return the raw text of Material Facts, and nothing else.
+            The first part of the Net Assessment framework is to identify the Material Facts. This is a brief description of what Material Facts are:
+            
+            {self.material_facts_description}
+            
+            Research has been conducted in order to find information that would be conducive to answering the below given question. Given the provided information and question, your goal is to identify the Material Facts that are relevant to analysis of and answering of the question, and return them. You MUST MAKE SURE that you retain all statistical points and relevant technical details. If there are any pieces of data or technical information represented in the text, they must be represented identically in your response. You MUST NOT attempt to answer the question. This phase is the preparation (Material Facts) phase, and there are many more components before the answer is ready to be determined.
+            
+            You have also been given relevant statements made from a call transcript of high level analysts. You MUST not bias your analysis towards these statements, they are just there to offer insight that might not be public knowledge or easily discoverable. You should take these pieces of information into account, but you MUST also treat them the same as all the other pieces of information that you have been given in terms of importance and weight. Consider this information that is helping you, the analyst, make the best possible analysis that you can, NOT a guiding set of statements that you adhere to. This relevant information is provided below under the section "Relevant Call Notes". If there is nothing under that section, then this means that has been no recent relevant insights from this group of analysts.
 
             Question:
             {question}
 
             Information:
             {information}
+            
+            Relevant Call Notes:
+            {relevant_call_notes}
             """
         
         return midgard.call_gpt_single(self.system_init, prompt, function_name="get_material_facts")
 
-    def get_force_catalysts(self, information, question, specific_persona):
+    def get_force_catalysts(self, information, question, relevant_call_notes):
         prompt = f"""
-            You are an expert on the 'Net Assessment' approach to analysis, and you are able to apply this to any topic. The hallmark of your excellence is how you think outside of the box and obtain insights others would never be able to give. {specific_persona} You do not shy away from sensitive topics, and your analysis must provide a clear and accurate view of the situation that you are given.
-
-            The second part of the Net Assessment framework is to identify the Force Catalysts. "Force Catalysts" are defined as a development that has the potential to significantly alter the strategic landscape of a given situation. A typical force catalyst within the context of the military are leaders who have the potential to make radical changes. Force catalysts can also be inanimate, such as new technologies, a shift in the geopolitical, economic or military landscape, or a natural disaster. They key characteristic of a Force Catalyst is its ability to catalyze or accelerate existing trends or dynamics. They also might have the ability to reverse or radically alter these trends.
-
-            Identifying Force Catalysts enable analysts to anticipate and prepare for potential changes in the strategic environment.
-
-            Therefore, given the information and question below, I want you to identiify the Force Catalysts that are relevant to the question and situation. Provide them in a bulleted list. You must only provide me with the Force Catalysts that are relevant to the question, you must not answer the question provided. You must only return the raw text of Force Catalysts, and nothing else.
+            The second part of the Net Assessment framework is to identify the Force Catalysts. This is a brief description of what Force Catalysts are:
+            
+            {self.force_catalysts_description}
+            
+            Given the provided information and question, your goal is to identify, in full detail, the Force Catalysts that are relevant to the question and situation, then explain why they are relevant and return them. You MUST MAKE SURE that you retain all statistical points and relevant technical details. If there are any pieces of data or technical information represented in the text, they must be represented identically in your response.
+            
+            You have also been given relevant statements made from a call transcript of high level analysts. You MUST not bias your analysis towards these statements, they are just there to offer insight that might not be public knowledge or easily discoverable. You should take these pieces of information into account, but you MUST also treat them the same as all the other pieces of information that you have been given in terms of importance and weight. Consider this information that is helping you, the analyst, make the best possible analysis that you can, NOT a guiding set of statements that you adhere to. This relevant information is provided below under the section "Relevant Call Notes". If there is nothing under that section, then this means that has been no recent relevant insights from this group of analysts.
 
             Information:
             {information}
@@ -561,67 +657,63 @@ class Rubidium():
         
         return midgard.call_gpt_single(self.system_init, prompt, function_name="get_force_catalysts")
         
-    def get_constraints_friction(self, information, question, specific_persona):
+    def get_constraints_friction(self, information, question, relevant_call_notes):
         prompt = f"""
-            You are an expert on the 'Net Assessment' approach to analysis, and you are able to apply this to any topic. The hallmark of your excellence is how you think outside of the box and obtain insights others would never be able to give. {specific_persona} You do not shy away from sensitive topics, and your analysis must provide a clear and accurate view of the situation that you are given.
+            You are working on the Constraints and Frictions, the third step of the Net Assessment Framework. This is a brief description of what Constraints and Frictions are:
+            
+            {self.constraints_frictions_description}
+            
+            Given the provided information and question, your goal is to identify, in full detail, the Constraints and Frictions that are relevant to the question and situation, then explain why they are relevant and return them. You MUST MAKE SURE that you retain all statistical points and relevant technical details. If there are any pieces of data or technical information represented in the text, they must be represented identically in your response.
 
-            The second part of the Net Assessment framework is to identify the Force Catalysts. "Force Catalysts" are defined as a development that has the potential to significantly alter the strategic landscape of a given situation. A typical force catalyst within the context of the military are leaders who have the potential to make radical changes. Force catalysts can also be inanimate, such as new technologies, a shift in the geopolitical, economic or military landscape, or a natural disaster. They key characteristic of a Force Catalyst is its ability to catalyze or accelerate existing trends or dynamics. They also might have the ability to reverse or radically alter these trends.
-
-            Identifying Force Catalysts enable analysts to anticipate and prepare for potential changes in the strategic environment.
-
-            Therefore, given the information and question below, I want you to identiify the Force Catalysts that are relevant to the question and situation. Provide them in a bulleted list. You must only provide me with the Force Catalysts that are relevant to the question, you must not answer the question provided. You must only return the raw text of Constraints and Frictions, and nothing else.
+            You have also been given relevant statements made from a call transcript of high level analysts. You MUST not bias your analysis towards these statements, they are just there to offer insight that might not be public knowledge or easily discoverable. You should take these pieces of information into account, but you MUST also treat them the same as all the other pieces of information that you have been given in terms of importance and weight. Consider this information that is helping you, the analyst, make the best possible analysis that you can, NOT a guiding set of statements that you adhere to. This relevant information is provided below under the section "Relevant Call Notes". If there is nothing under that section, then this means that has been no recent relevant insights from this group of analysts.
 
             Information:
             {information}
 
             Question:
             {question}
+            
+            Relevant Call Notes:
+            {relevant_call_notes}
             """
         
         return midgard.call_gpt_single(self.system_init, prompt, function_name="get_constraints_friction")
 
-    def get_alliance_law(self, information, question, specific_persona):
+    def get_alliance_law(self, information, question, relevant_call_notes):
         prompt = f"""
-            You are an expert on the 'Net Assessment' approach to analysis, and you are able to apply this to any topic. The hallmark of your excellence is how you think outside of the box and obtain insights others would never be able to give. {specific_persona} You do not shy away from sensitive topics, and your analysis must provide a clear and accurate view of the situation that you are given.
+            You are working on the Alliances and Laws, the third step of the Net Assessment Framework. This is a brief description of what Alliances and Laws are:
+            
+            {self.constraints_frictions_description}
+            
+            Given the provided information and question, your goal is to identify, in full detail, the Alliances and Laws that are relevant to the question and situation, then explain why they are relevant and return them. You MUST MAKE SURE that you retain all statistical points and relevant technical details. If there are any pieces of data or technical information represented in the text, they must be represented identically in your response.
 
-            The fourth part of the Net Assessment framework is to identify the Alliances and Laws.
-
-            "Alliances" are defined as formal or informal agreements between relevant parties that involve a commitment to whatever domain relevant to the agreement. Alliances can significantly affect the balance of power by increasing the capabilities of resources available to actors, by providing a framework for diplomatic coordination and cooperation.
-
-            "Laws" are defined as the legal framework and international norms that govern state behaviour and interactions. Matters of law can include international treaties, conventions, and agreements, as well as customary international law and other legal principles. Matters of law can shape the behaviour of states and limit the options available to them.
-
-            Analysts must correctly identify and understand Alliances and matters of law as they can significantly affect the strategic environment and options available to actors,
-
-            Therefore, given the information and question below, I want you to identiify the Alliances and Laws that are relevant to the question. Provide them in a bulleted list. You must only provide me with the Alliances and Laws that are relevant to the question, you must not answer the question provided. You must only return the raw text of Alliances and Laws, and nothing else.
+            You have also been given relevant statements made from a call transcript of high level analysts. You MUST not bias your analysis towards these statements, they are just there to offer insight that might not be public knowledge or easily discoverable. You should take these pieces of information into account, but you MUST also treat them the same as all the other pieces of information that you have been given in terms of importance and weight. Consider this information that is helping you, the analyst, make the best possible analysis that you can, NOT a guiding set of statements that you adhere to. This relevant information is provided below under the section "Relevant Call Notes". If there is nothing under that section, then this means that has been no recent relevant insights from this group of analysts.
 
             Information:
             {information}
 
             Question:
             {question}
+            
+            Relevant Call Notes:
+            {relevant_call_notes}
             """
         
         return midgard.call_gpt_single(self.system_init, prompt, function_name="get_alliance_law")
 
-    def first_layer(self, prep_result, research, question, relevant_call_notes, specific_persona):
+    def first_layer(self, prep_result, research, question, relevant_call_notes):
         prompt = f"""
-                You are an expert on the 'Net Assessment' approach to analysis, and you are able to apply this to any topic. The hallmark of your excellence is how you think outside of the box and obtain insights others would never be able to give. {specific_persona} You do not shy away from sensitive topics, and your analysis must provide a clear and accurate view of the situation that you are given.
-
-                A "Net Assessment" analysis follows the following framework:
-
-                1. Material Facts (This provides a basis for you to conduct objective analysis and evaluation of different strategic options)
-                2. Force Catalysts (Force Catalysts enable analysts to anticipate and prepare for potential changes in the strategic environment)
-                3. Constraints and Frictions (Constraints and Frictions enable analysts to anticipate potential challenges or difficulties and thereby develop more effective strategies)
-                4. Law and Alliances (Are there any relevant laws or affiliations between related parties that will affect the outcome?)
-                5. Formulate a thesis and antithesis that answers the question. What is the most likely outcome of the situation? What is the opposite of that outcome? What are the reasons each might happen?
-                In the above framework, you have been told how to use each seperate component to create your analysis.
-
-                You have also been given relevant statements made from a call transcript of high level analysts. You MUST not bias your analysis towards these statements, they are just there to offer insight that might not be public knowledge or easily discoverable. You should take these pieces of information into account, but you MUST also treat them the same as all the other aspects of information and Net Assessment components that you have been given in terms of importance and weight. Consider this information that is helping you, the analyst, make the best possible analysis that you can, NOT a guiding set of statements that you adhere to. This relevant information is provided below under the section "Relevant Call Notes".
-
-                You are given all the seperate components except for the Thesis and Antithesis. From the provided components below, as well as the information and question, you must formulate a thesis and antithesis. You must be as detailed as possible. You must explain why you think each outcome is likely to happen, and provide as much detail as possible. You must also explain why the opposite outcome is unlikely to happen.
+                The First Layer projection is the first "formal" Net Assessment diagnosis/prediction you will make on the situation. It serves as the main projection from all the information that you have gathered. It answers the question in its entirety, and it is the culmination of all of the preparation work that you have done before. It must answer the question directly.
+        
+                You MUST answer the question directly, and consider these guiding points:
+                1. Formulate a thesis that answers the question.
+                2. What is the most likely outcome of the situation if the question asks for an outcome? What are the reasons it might happen? Why is it the most likely outcome?
+                3. Is your analysis detailed and verbose enough where a person who is unacquainted with the field can understand it?
                 
-                Then, using the information provided and the components of the Net Assessment framework, provide a detailed prediction and analysis that answers the question provided. You must provide a in-depth explanation of your prediction, citing statistics from the information provided, and you must be as specific and technical as possible about the impact. All of your claims must be justified with reasons, and if possible, supported by the provided statistics. Your prediction must be at least 500 words long, preferably longer.
+                Lastly, after that, You must provide a in-depth explanation of your prediction, citing statistics from the information provided, and you must be as specific and technical as possible about the impact. All of your claims must be justified with reasons, and if possible, supported by the provided statistics. You should expand on every single detail, giving a long and verbose answer. When you are making claims supported by information, you MUST state this piece of information whenever you make the statement.
 
+                You have also been given relevant statements made from a call transcript of high level analysts. You MUST not bias your analysis towards these statements, they are just there to offer insight that might not be public knowledge or easily discoverable. You should take these pieces of information into account, but you MUST also treat them the same as all the other aspects of information and Net Assessment components that you have been given in terms of importance and weight. Consider this information that is helping you, the analyst, make the best possible analysis that you can, NOT a guiding set of statements that you adhere to. This relevant information is provided below under the section "Relevant Call Notes". If there is nothing under that section, then this means that has been no recent relevant insights from this group of analysts.
+                
                 From your prediction, I would like you to then predict 4 more cascading events that will happen in a chain after your prediction. You will be as specific as possible about these predicted events.
 
                 Question:
@@ -632,43 +724,42 @@ class Rubidium():
 
                 Information:
                 {research}
+                
+                Relevant Call Notes:
+                {relevant_call_notes}
                 """
 
         return midgard.call_gpt_single(self.system_init, prompt, function_name="first_layer")
 
-    def second_layer(self, prep_result, first_layer, research, question, relevant_call_notes, specific_persona):
+    def second_layer(self, prep_result, first_layer, research, question, relevant_call_notes):
         #TODO:
 
         first_layer_prompt = f"""
-            You are an expert on the 'Net Assessment' approach to analysis, and you are able to apply this to any topic. The hallmark of your excellence is how you think outside of the box and obtain insights others would never be able to give. {specific_persona} You do not shy away from sensitive topics, and your analysis must provide a clear and accurate view of the situation that you are given.
+                The First Layer projection is the first "formal" Net Assessment diagnosis/prediction you will make on the situation. It serves as the main projection from all the information that you have gathered. It answers the question in its entirety, and it is the culmination of all of the preparation work that you have done before. It must answer the question directly.
+        
+                You MUST answer the question directly, and consider these guiding points:
+                1. Formulate a thesis that answers the question.
+                2. What is the most likely outcome of the situation if the question asks for an outcome? What are the reasons it might happen? Why is it the most likely outcome?
+                3. Is your analysis detailed and verbose enough where a person who is unacquainted with the field can understand it?
+                
+                Lastly, after that, You must provide a in-depth explanation of your prediction, citing statistics from the information provided, and you must be as specific and technical as possible about the impact. All of your claims must be justified with reasons, and if possible, supported by the provided statistics. You should expand on every single detail, giving a long and verbose answer. When you are making claims supported by information, you MUST state this piece of information whenever you make the statement.
 
-            A "Net Assessment" analysis follows the following framework:
+                You have also been given relevant statements made from a call transcript of high level analysts. You MUST not bias your analysis towards these statements, they are just there to offer insight that might not be public knowledge or easily discoverable. You should take these pieces of information into account, but you MUST also treat them the same as all the other aspects of information and Net Assessment components that you have been given in terms of importance and weight. Consider this information that is helping you, the analyst, make the best possible analysis that you can, NOT a guiding set of statements that you adhere to. This relevant information is provided below under the section "Relevant Call Notes". If there is nothing under that section, then this means that has been no recent relevant insights from this group of analysts.
+                
+                From your prediction, I would like you to then predict 4 more cascading events that will happen in a chain after your prediction. You will be as specific as possible about these predicted events.
 
-            1. Material Facts (This provides a basis for you to conduct objective analysis and evaluation of different strategic options)
-            2. Force Catalysts (Force Catalysts enable analysts to anticipate and prepare for potential changes in the strategic environment)
-            3. Constraints and Frictions (Constraints and Frictions enable analysts to anticipate potential challenges or difficulties and thereby develop more effective strategies)
-            4. Law and Alliances (Are there any relevant laws or affiliations between related parties that will affect the outcome?)
-            5. Formulate a thesis and antithesis that answers the question. What is the most likely outcome of the situation? What is the opposite of that outcome? What are the reasons each might happen?
-            In the above framework, you have been told how to use each seperate component to create your analysis.
+                Question:
+                {question}
 
-            You have also been given relevant statements made from a call transcript of high level analysts. You MUST not bias your analysis towards these statements, they are just there to offer insight that might not be public knowledge or easily discoverable. You should take these pieces of information into account, but you MUST also treat them the same as all the other aspects of information and Net Assessment components that you have been given in terms of importance and weight. Consider this information that is helping you, the analyst, make the best possible analysis that you can, NOT a guiding set of statements that you adhere to. This relevant information is provided below under the section "Relevant Call Notes".
+                Net Assessment Components:
+                {prep_result}
 
-            You are given all the seperate components except for the Thesis and Antithesis. From the provided components below, as well as the information and question, you must formulate a thesis and antithesis. You must be as detailed as possible. You must explain why you think each outcome is likely to happen, and provide as much detail as possible. You must also explain why the opposite outcome is unlikely to happen.
-            
-            Then, using the information provided and the components of the Net Assessment framework, provide a detailed prediction and analysis that answers the question provided. You must provide a in-depth explanation of your prediction, citing statistics from the information provided, and you must be as specific and technical as possible about the impact. All of your claims must be justified with reasons, and if possible, supported by the provided statistics. Your prediction must be at least 500 words long, preferably longer.
-
-            Net Assessment Components:
-            {prep_result}
-
-            Information:
-            {research}
-            
-            Relevant Call Notes:
-            {relevant_call_notes}
-
-            Question:
-            {question}
-            """
+                Information:
+                {research}
+                
+                Relevant Call Notes:
+                {relevant_call_notes}
+                """
 
         second_layer_prompt = f"I would like you consider a perspective no one has considered before. Can you give me a more out of the box analysis? Be as specific as you can about the impact, while citing statistics from the information provided. You must also give me 4 more cascading events that will happen in a chain after your new out of the box prediction."
 
@@ -1142,103 +1233,6 @@ class ActorCriticRuby(Rubidium):
         The framework also paves the way for diverse types of materials and findings, ranging from deeply researched assessments to concise studies, informal appraisals, and topical memos. These resources, although initially produced in a highly classified environment, have been toned down and adapted for broader strategic and policy-related debates, serving as critical inputs for decision-makers in diverse geopolitical contexts. 
 
         The role of Net Assessment in shaping historical shifts in policy and strategy merits attention. Despite acknowledging its roots within the US Department Defense, it’s important to note its influence on significant decisions. For instance, it has helped draft new strategic paradigms and reverse major policy decisions, exhibiting its potential for globally-relevant strategic discourse.
-        """
-        
-        self.material_facts_description = f"""
-        A Material Fact, within the framework of Net Assessment, can be understood as a tangible, empirically-based datum or substantive piece of information, derived from a set of valid observations or studies, which holds significant weight and consequence in comprehensively understanding, measuring, and assessing the dynamics of geopolitical, military, economic, or technological situations involving nation-states.
-
-        These facts hold high relevance, as they can objectively shed light on observable and unobservable elements influencing a situation. Observable material facts could be quantifiable elements such as the number of tanks an adversary possesses, economic conditions, technological advancements among nation-states, and political developments. Unobservable material facts, on the contrary, are often abstract yet critical aspects discerned through associated behaviors, patterns or historical data, despite not being directly observable. These might encompass political will, geopolitical strategies, public sentiments, or underlying motivations. While the way facts are represented on different kinds of media may contain inherent biases, it is important to note that while identifying Material Facts, we must ensure biases are not stripped from the facts, but rather are represented accurately with the facts so that the analyst can account for them, and understand the context in which they were presented.
-
-        Material Facts in the Net Assessment rubric are derived from a broad range of research methodologies, including but not limited to sampling, experimental designs, and dense historical research. Nonetheless, the application of these research designs in complex, multi-factorial contexts of Net Assessment poses unique challenges of representativeness, self-causation, ethical constraints, and multifaceted interactions. Thus, the facts drawn from these research should satisfy discerning scrutiny, unlike cursory assertions devoid of empirical evidence.
-
-        Differentiating these facts from assumptions, interpretations, or generalizations becomes paramount in Net Assessment. Hence, a rigorous examination of the fact's origin, the methodology used to derive it, the extrapolation involved, the sample's representativeness in research, and the acknowledgment of the inherent uncertainties, errors, or limitations in the research are all vital parts of establishing a Material Fact.
-
-        Material Facts also encompass understanding the complex fabric of knowledge and the associated uncertainties. These elements are classified into known knowns (observable and unobservable), known unknowns (elements that could be understood given time or effort), and unknown unknowns (elements that remain elusive). Each of these categories introduces varying degrees of uncertainty that must be critically acknowledged in the construction of a comprehensive Net Assessment.
-
-        In essence, a Material Fact within the context of Net Assessment is an empirically grounded data point or inference significant to the strategic calculation, embedded in a complex interplay of knowledge components, research rigors, associated uncertainties, and varying moments in time. This fact serves as a fundamental building block for constructing a detailed, holistic picture of the situation at hand, contributing significantly to inform strategy and policy decisions.
-        """
-        
-        self.force_catalysts_description = f"""
-        Force Catalysts, in the context of the Net Assessment framework, are key variables influencing state behavior and decision-making across geopolitical and military dynamics. These catalysts drive change, augment or diminish state power, and impact the strategic choices and trajectories of nations. Strategic factors encompass specific characteristics that can shape the direction and intensity of force application, including leadership, resolve, initiative, and entrepreneurship.
-
-        Leadership, a critical force catalyst, signifies the capacity to guide, influence, and command societal and governmental bodies to achieve a state's objectives. Leadership is primarily influenced by factors such as risk propensity, lifetime experiences, decision-making styles, and psychological profiles. Varying leadership attributes significantly influence the likelihood of states engaging in conflicts or maintaining peaceful relations. Leadership styles can significantly vary across different historical periods, international crises, and cultural contexts. These styles further significantly impact negotiation processes, war efforts, and international diplomacy, thereby driving historical courses and geopolitical outcomes.
-
-        Resolve is another force catalyst impacting the outcomes of international conflicts and military performance. This quality embodies a state's determination and willpower to pursue chosen policies or strategies, often amid adversity. It pertains to the steadfast commitment among military forces, governmental bodies, and civilians alike, contributing to strategic successes. Changes in societal norms, technological advancements, and political changes can significantly affect the resolve, reflecting fluctuations in historical periods.
-
-        Initiative, as a force catalyst, represents the capacity to act and make decisions independently to seize strategic opportunities. The importance of initiative can be especially pronounced in modern warfare where quick reflexes, independent decision-making, and astute judgment can determine the success or failure in battlefield situations. Initiative is often heavily influenced by prevailing political cultures and societal norms, making it a dynamic characteristic in different military and geopolitical contexts.
-
-        Finally, entrepreneurship in the context of force catalysts identifies the willingness and ability to innovate, take risks, and leverage arising conditions and opportunities in combat. It encapsulates adaptability, innovative strategies, and exploitation of unanticipated combat circumstances.
-        
-        Identifying Force Catalysts enable analysts to anticipate and prepare for potential changes in the strategic environment.
-
-        Therefore, a comprehensive application of Force Catalysts as part of the Net Assessment framework allows for a more nuanced understanding of the intangible elements that drive geopolitical and military dynamics. These catalysts provide critical insights into the evaluation and prediction of future trends, conflict outcomes, and military performance by examining the interplay of leadership risk propensities, societal structures, technological advancements, and more. Understanding Force Catalysts enables a more holistic approach to geopolitical analysis, factoring in complex, intangible elements alongside conventionally quantifiable indicators of state power. The framework appreciates the fact that the strategic behavior of states is driven not merely by their military and economic capabilities but by the interactions among these multifaceted catalysts.
-        """
-        
-        self.constraints_frictions_description = f"""
-        Constraints are endemic to any analytical or operational endeavor, acting as limitations or boundaries that shape the outcome and processes of activities across a multitude of domains. These impediments or boundary conditions come in various forms and are instrumental in dictating the parameters within which entities operate. These limitations are not confined to shortages in resources but extend to legal and regulatory frameworks, organizational capabilities, cognitive limitations, societal norms, and technological feasibilities. Constraints can be explicit or implicit, reflecting both tangible barriers such as a finite budget and intangible ones like intellectual property rights or cultural taboos.
-
-        Expanding further, constraints encompass several dimensions:
-        1. Epistemic Constraints: These relate to the limitations on what we can know. They include the availability, reliability, and validity of information, intellectual property issues, and barriers to knowledge transfer.
-        2. Resource Constraints: These refer to the physical, financial, and human resources that may restrict an entity's ability to perform its functions.
-        3. Temporal Constraints: Time-related limitations that affect planning and decision-making horizons, as well as strategic foresight capacity.
-        4. Spatial Constraints: Geographical factors including the physical environment, territory, and infrastructure that limit the operational theater.
-        5. Cognitive Constraints: The psychological limitations of humans, such as biases, processing capacity, and heuristics that influence understanding and decision-making.
-        6. Regulatory and Legal Constraints: Laws, regulations, and institutional mechanisms that establish the rules within which organizations and states must operate.
-        7. Social and Cultural Constraints: Norms, values, and customs that can limit choices or prescribe certain behaviors, often tacit and deeply embedded in societies.
-
-        Frictions, in a generalizable sense, comprise the diverse set of unpredictable and often uncontrollable variables that may interfere with the realization of planned processes or the attainment of objectives. These unpredictable elements constitute the dynamic interplay of factors that, individually or in combination, can influence, alter, or disrupt expected outcomes.
-
-        Friction incorporates several facets:
-        1. Environmental Friction: Natural or environmental factors that unpredictably interfere with operations—whether it's weather conditions impacting logistics or natural disasters altering economic landscapes.
-        2. Technical Friction: Failures or unforeseen complications in technology and machinery that hamper efficiency or effectiveness.
-        3. Human Friction: Human factors including individual or collective behavior, reaction under stress, errors of judgment, or interpersonal conflicts.
-        4. Organizational Friction: Inefficiencies, miscommunications, or resistance within a hierarchy or group that impede fluid function.
-        5. Informational Friction: Misinformation, disinformation, or communication gaps that create confusion and hinder coordination.
-        6. Political Friction: Unexpected changes in political landscapes or decisions that alter the strategic environment.
-        7. Economic Friction: Market volatility, economic crises, and fluctuations that can unpredictably impact resource availability and allocation.
-
-        Importance to Net Assessment:
-
-        In the process of Net Assessment, the identification and understanding of Constraints and Frictions is pivotal. These two factors form the substratum on which realistic assessments are structured. Constraints and Frictions help us recognize the bounding conditions of an entity's strategic performance and the uncertainties that could influence its planned paths. By integrating a thorough appraisal of both Constraints and Frictions, Net Assessment enables a multi-faceted evaluation that accounts for the complex interplay of diverse factors, thereby fostering more robust, adaptable, and future-proof strategic initiatives. The thorough appreciation of Constraints and Frictions transcends mere recognition and incorporates proactive planning—thus enabling decision-makers to navigate the intricate web of determinants that dictate the geopolitical and strategic labors of tomorrow. They are not merely hurdles to be acknowledged but instrumental tools in the crafting of strategic resilience and adaptive foresight
-        """
-        
-        self.alliances_laws_description = f"""
-        Alliances
-
-        Alliances are formalized relationships forged between two or more entities, ranging from sovereign nation-states to organizations, corporations, and other establishments, with the primary intent of advancing mutual interests, achieving common goals, and enhancing collective capacities. Although traditionally associated with military coordination and strategic defense, alliances encapsulate a much broader spectrum of cooperative engagements, including economic partnerships, scientific collaborations, and environmental agreements, among others.
-
-        Key characteristics of alliances include:
-
-        1. Contractual Nature: Alliances are typically entrenched within written agreements or treaties that stipulate the commitments, expectations, and frameworks of cooperation among the parties, ensuring clarity and binding authority over the terms of collaboration.
-        2. Mutual Benefit: An essential tenet of alliances is reciprocity, wherein each party expects to derive advantages, whether immediate or long-term, that justify their contribution and involvement in the alliance.
-        3. Resource Sharing: By pooling resources such as knowledge, technology, finances, or personnel, alliances foster a synergistic approach to addressing challenges or capitalizing on opportunities that might be beyond the scope of single entities.
-        4. Diplomatic Influence: Alliances exert influence on the international stage, often swaying diplomatic negotiations and collective actions, and serving as a mechanism to enhance the global stature and reach of their members.
-        5. Strategic Deterrence: Especially in security-oriented alliances, the combined capabilities of members serve as a deterrent against aggressors, thus underpinning regional or global stability.
-        6. Trust and Reliability: The effectiveness of an alliance hinges on the trustworthiness and reliability of its members to fulfill their obligations, particularly in times of need or crisis.
-        7. Adaptability: Alliances must remain adaptable to evolving circumstances, requiring periodic renegotiation and restructuring to remain relevant and effective in a dynamic environment.
-        8. Challenges: Conflicting interests, asymmetry in power dynamics, and changing geopolitical landscapes pose significant challenges to the longevity and cohesion of alliances.
-
-        Laws
-
-        Laws, in their most expansive sense, constitute the codified rules and principles that govern the conduct of individuals, entities, and states within a given framework or system. These laws are established to maintain order, uphold justice, mitigate conflicts, and protect the rights and interests of stakeholders. They emanate from an intricate network of legislations, regulations, conventions, and mutual agreements and encapsulate both domestic and international contexts.
-
-        The essence of laws includes:
-        1. Regulatory Framework: Laws provide the regulatory structure within which entities must operate, delineating permissible actions and sanctions for non-compliance, thus fostering predictability and stability.
-        2. Conflict Resolution: They serve as the formal mechanism for resolving disputes objectively, based on established criteria and principles rather than arbitrary or biased judgments.
-        3. Ethical and Moral Standards: Laws often reflect the ethical and moral standards of a society or community, translating these values into enforceable norms.
-        4. Rights Protection: By establishing legal rights and duties, laws enable the protection of individual, group, and state interests against infringement or harm.
-        5. Accountability: They hold actors accountable for their actions, ensuring that violations are addressed and appropriate remedial actions or penalties are applied.
-        6. Dynamic Evolution: Laws are dynamic, evolving with social, technological, and political developments to remain congruent with contemporary issues and challenges.
-        7. International Order: International laws, including those governing conflicts, facilitate a cooperative international order, provide frameworks for peaceful coexistence, and manage relations between nation-states.
-        8. Implementation Challenges: The application and enforcement of laws can be complex, contingent on effective judicial and administrative systems and the willing adherence by the relevant actors.
-
-        Importance to Net Assessment:
-
-        Understanding the workings of Alliances and Laws is pivotal to the process of Net Assessment. Alliances not only influence strategic decisions and power equations but also reflect the collective resolve and capability to address potential threats or to leverage opportunities in pursuit of shared objectives. They can both enable and constrain actions, based on their nature and dynamics, representing key variables in any comprehensive strategic analysis.
-
-        Laws shape the permissible conduct within and between entities, providing a basis upon which scenarios are planned and actions are justified or criticized. They inform the risk calculus of operational strategies, help anticipate responses to various initiatives, and offer a frame to reconcile international objectives with compliance to normative standards.
-
-        A deep and nuanced understanding of Alliances and Laws, with their multifaceted implications, enables Net Assessors to predict the behavior of actors within the global system, discern potential fault lines or cooperative potentials, and advise on plausible strategic postures. They convey the operational environment’s complexity, which is integral to comprehensive assessments and the formulation of long-term strategic visions.
         """
         
     # def net_assess(self, question):
@@ -1734,7 +1728,7 @@ class ActorCriticRuby(Rubidium):
             9. Actionable Insights and Tangible Benefits (MOST IMPORTANT):
                 a. The point of an analysis is not to provide an answer with a layer of abstraction on top of actionable and tangible insights. To be clear, instead of saying something like: "Based on the available data and points that we have covered above, you should look towards near, medium and far term supply chain protection policies." You should be saying something like: "Based on the available data and points that we have covered above, it is most likely that [A] will happen in the next 3-4 months. This is because [explanation]. This means that you have 1-2 months to look for a solution for [B].". Or, if the question is more general and related to a projection, the answer should give a specific, defined diagnosis on WHAT will happen and WHEN it will happen. For example, "[A] will happen in [TIMEFRAME], because [REASONS]. These are the potential cascading impacts [CASCADING IMPACTS]. In other words, the Actor needs to be making decisions on the information he has been presented in the research as well as the NA preparation about the future, and answering the question. The asker of the question should be able to act on the information the Actor has provided WITH NO MORE WORK OR THINKING. They should be able to take the analysis generated by the Actor and immediately put it into operation. There should be nothing more for the asker of the question to do with respect to the analysis. The Actor is the concluding point.
             
-            The first layer projection serves as the main projection from all the information that you have gathered. It answers the question in its entirety, and it is the culmination of all of the preparation work that you have done before. They must answer the question directly.
+            The first layer projection serves as the main projection from all the information that you have gathered. It answers the question in its entirety, and it is the culmination of all of the preparation work that you have done before. It must answer the question directly.
             
             Additionally, here is a set of dynamic criteria that is specific to the question. These criteria have been identified as being able to provide the most value to the person asking the question, and you should focus on these criteria when criticising the Actor's work.
             
@@ -1804,7 +1798,7 @@ class ActorCriticRuby(Rubidium):
             
             There are 4, sequential components of Net Assessment before the projection. They are (in no particular order): Material Facts, Force Catalysts, Constraints and Frictions, and Alliances and Laws. The first 4 components have already been completed, and they are provided below for your reference. The definitions of these components have also been provided, as to allow you to understand better what role they serve in Net Assessment.
             
-            You have also been given relevant statements made from a call transcript of high level analysts. You MUST not bias your analysis towards these statements, they are just there to offer insight that might not be public knowledge or easily discoverable. You should take these pieces of information into account, but you MUST also treat them the same as all the other aspects of information and Net Assessment components that you have been given in terms of importance and weight. Consider this information that is helping you, the analyst, make the best possible analysis that you can, NOT a guiding set of statements that you adhere to. This relevant information is provided below under the section "Relevant Call Notes".
+            You have also been given relevant statements made from a call transcript of high level analysts. You MUST not bias your analysis towards these statements, they are just there to offer insight that might not be public knowledge or easily discoverable. You should take these pieces of information into account, but you MUST also treat them the same as all the other aspects of information and Net Assessment components that you have been given in terms of importance and weight. Consider this information that is helping you, the analyst, make the best possible analysis that you can, NOT a guiding set of statements that you adhere to. This relevant information is provided below under the section "Relevant Call Notes". If there is nothing under that section, then this means that has been no recent relevant insights from this group of analysts.
             
             Additionally, here is a set of dynamic criteria that is specific to the question. These criteria have been identified as being able to provide the most value to the person asking the question, and you should focus on these criteria when building your analysis.
             
@@ -1949,7 +1943,7 @@ class ActorCriticRuby(Rubidium):
             
             There are 4, sequential components of Net Assessment before the projection. They are (in no particular order): Material Facts, Force Catalysts, Constraints and Frictions, and Alliances and Laws. The first 4 components have already been completed, and they are provided below for your reference. The definitions of these components have also been provided, as to allow you to understand better what role they serve in Net Assessment.
             
-            You have also been given relevant statements made from a call transcript of high level analysts. You MUST not bias your analysis towards these statements, they are just there to offer insight that might not be public knowledge or easily discoverable. You should take these pieces of information into account, but you MUST also treat them the same as all the other aspects of information and Net Assessment components that you have been given in terms of importance and weight. Consider this information that is helping you, the analyst, make the best possible analysis that you can, NOT a guiding set of statements that you adhere to. This relevant information is provided below under the section "Relevant Call Notes".
+            You have also been given relevant statements made from a call transcript of high level analysts. You MUST not bias your analysis towards these statements, they are just there to offer insight that might not be public knowledge or easily discoverable. You should take these pieces of information into account, but you MUST also treat them the same as all the other aspects of information and Net Assessment components that you have been given in terms of importance and weight. Consider this information that is helping you, the analyst, make the best possible analysis that you can, NOT a guiding set of statements that you adhere to. This relevant information is provided below under the section "Relevant Call Notes". If there is nothing under that section, then this means that has been no recent relevant insights from this group of analysts.
             
             You MUST answer the question directly, and consider these guiding points:
             1. Formulate a thesis that answers the question, that is completely different from the first layer.
