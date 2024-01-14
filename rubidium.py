@@ -37,8 +37,6 @@ class Rubidium():
     
     '''
     def __init__(self):
-        self.reports_directory = "generated_reports"
-
         #gpt prompt stuff
         self.system_init = f"""You are Rubidium. You are a world-class Geopoltical Analyst, who is extremely good at breaking down and planning comprehensive approaches to tough and complex analysis questions and research areas. You follow the concepts of Net Assessment, and you are the best in the world at Net Assessment.
     
@@ -53,6 +51,10 @@ class Rubidium():
         It generates myriad resources, from in-depth, detail-oriented assessments to practical memos for strategic discussions. Regardless of their origins in classified domains, these resources can be adapted to cater to wider geopolitical debates, outlining crucial intelligence for decision-makers worldwide.
 
         In terms of historical weight, Net Assessment has proven instrumental in transforming policy and strategic orientations, and in devising new strategic paradigms, testament to its far-reaching impact on global strategic discourse. Thus, Net Assessment is integral to global geopolitical paradigms, long-term safety considerations, and strategic direction, marked by its comprehensive, versatile, opinion-free, and predictive essence."""
+        
+        self.metadata_lock = threading.Lock()
+        self.curr_metadata_dict = {}
+        self.curr_metadata_path = None
 
     '''
     A one-pass, non-recursive approach to answering Net Assessment queries. Creates a docx file containing the question and answer, and then sends it to the discord queue.
@@ -102,30 +104,7 @@ class Rubidium():
         return ret_persona
 
     def net_assess(self, question):
-        chat_history = [] #a local version of history that we use as context for our second projection and cascading calls.
-        
-        research, relevant_call_notes = self.get_research(question)
-        with open("research.txt", "w") as f:
-            f.write(research)
-        print("done with research")
-
-        persona_query = f"{question}\n\n{research}"
-        specific_persona = self.get_persona(persona_query)
-
-        print("done with persona query")
-
-        prep_result = self.na_prep(research, question, relevant_call_notes, specific_persona)
-        
-        print("done with na prep")
-
-        first_layer = self.first_layer(prep_result, research, question, relevant_call_notes, specific_persona)
-
-        print("done with first layer")
-
-        second_layer = self.second_layer(prep_result, first_layer, research, question, relevant_call_notes, specific_persona)
-
-        print("done with second layer")
-
+        #we start with the directory name
         title = self.get_title(question)
         
         #just some cleaning
@@ -149,6 +128,32 @@ class Rubidium():
                 #just some cleaning
                 title = title.strip('"')
                 pass
+            
+        #reset all of the shared variables (across reports)
+        self.curr_metadata_dict = {}
+            
+        self.current_metadata_path = f"output/{title}/metadata.json"
+        with open(self.current_metadata_path, 'w') as f:
+            json.dump(self.curr_metadata_dict, f, indent=4)
+        
+        research, relevant_call_notes = self.get_research(question)
+
+        persona_query = f"{question}\n\n{research}"
+        specific_persona = self.get_persona(persona_query)
+
+        print("done with persona query")
+
+        prep_result = self.na_prep(research, question, relevant_call_notes, specific_persona)
+        
+        print("done with na prep")
+
+        first_layer = self.first_layer(prep_result, research, question, relevant_call_notes, specific_persona)
+
+        print("done with first layer")
+
+        second_layer = self.second_layer(prep_result, first_layer, research, question, relevant_call_notes, specific_persona)
+
+        print("done with second layer")
 
         try:
             finished_report = self.create_report_docx(title, question, prep_result, first_layer, second_layer, research)
@@ -206,12 +211,23 @@ class Rubidium():
         research = ""
 
         action_plan = self.plan_approach(question)
-        print(action_plan)
+        
+        with self.metadata_lock:
+            self.curr_metadata_dict["action_plan"] = action_plan
+            #dump it to the json so changes are visible
+            with open(self.current_metadata_path, 'w') as f:
+                json.dump(self.curr_metadata_dict, f, indent=4)
+        
         actions = self.parse_plan(action_plan, question)
         
         relevant_call_notes = self.retrieve_call_notes(question, action_plan)
         research_areas = self.identify_research_areas(question, relevant_call_notes)
-        print(f"research areas: {research_areas}")
+        
+        with self.metadata_lock:
+            self.curr_metadata_dict["call_note_additional_research_areas"] = research_areas
+            #dump it to the json so changes are visible
+            with open(self.current_metadata_path, 'w') as f:
+                json.dump(self.curr_metadata_dict, f, indent=4)
         
         additional_queries = []
         with concurrent.futures.ThreadPoolExecutor() as executor:
@@ -245,14 +261,59 @@ class Rubidium():
             for future in tqdm(concurrent.futures.as_completed(futures), total=len(futures), desc="action to sq"):
                 search_queries.extend(future.result())
 
+        #track the "original/raw" queries in the metadata
+        with self.metadata_lock:
+            self.curr_metadata_dict["original_search_queries"] = search_queries
+            #dump it to the json so changes are visible
+            with open(self.current_metadata_path, 'w') as f:
+                json.dump(self.curr_metadata_dict, f, indent=4)
+
         search_queries.extend(additional_queries)
+
+        #track the "final" queries in the metadata
+        with self.metadata_lock:
+            self.curr_metadata_dict["final_search_queries"] = search_queries
+            #dump it to the json so changes are visible
+            with open(self.current_metadata_path, 'w') as f:
+                json.dump(self.curr_metadata_dict, f, indent=4)
 
         pruned_searches = self.prune_searches(search_queries)
         
-        print(f"original sq length: {len(search_queries)}, pruned: {len(pruned_searches)}")
+        #track the pruned searches in the metadata
+        with self.metadata_lock:
+            self.curr_metadata_dict["pruned_search_queries"] = pruned_searches
+            #dump it to the json so changes are visible
+            with open(self.current_metadata_path, 'w') as f:
+                json.dump(self.curr_metadata_dict, f, indent=4)
+                
+        #track the lengths of both of them for easier viewing
+        with self.metadata_lock:
+            self.curr_metadata_dict["final_search_queries_length"] = len(search_queries)
+            self.curr_metadata_dict["pruned_search_queries_length"] = len(pruned_searches)
+            #dump it to the json so changes are visible
+            with open(self.current_metadata_path, 'w') as f:
+                json.dump(self.curr_metadata_dict, f, indent=4)
+        
+        print(f"original (final) sq length: {len(search_queries)}, pruned: {len(pruned_searches)}")
 
         news_searcher = onsearch.SearchManager()
         research = news_searcher.search_list(pruned_searches)
+        
+        #get the metadata from the searching
+        initial_search_metadata = news_searcher.get_metadata()
+        #add it to our metadata
+        with self.metadata_lock:
+            self.curr_metadata_dict["initial_search_metadata"] = initial_search_metadata
+            #dump it to the json so changes are visible
+            with open(self.current_metadata_path, 'w') as f:
+                json.dump(self.curr_metadata_dict, f, indent=4)
+
+        #track the research in the metadata
+        with self.metadata_lock:
+            self.curr_metadata_dict["initial research"] = research
+            #dump it to the json so changes are visible
+            with open(self.current_metadata_path, 'w') as f:
+                json.dump(self.curr_metadata_dict, f, indent=4)
 
         summary = midgard.summarise(research)
 
@@ -261,6 +322,13 @@ class Rubidium():
             print(f"summary length for this loop starting at {midgard.get_num_tokens(summary)}")
             summary = midgard.summarise(summary)
             print(f"summary length is now {midgard.get_num_tokens(summary)}")
+            
+        #track the final summary to compare with the initial research
+        with self.metadata_lock:
+            self.curr_metadata_dict["initial research summary"] = summary
+            #dump it to the json so changes are visible
+            with open(self.current_metadata_path, 'w') as f:
+                json.dump(self.curr_metadata_dict, f, indent=4)
 
         return summary, relevant_call_notes
 
@@ -294,7 +362,9 @@ class Rubidium():
                 relative_path = os.path.relpath(full_path, directory)
                 relative_paths.append(relative_path)
                 
-        # print(relative_paths)
+        #metadata stuff
+        with self.metadata_lock:
+            self.curr_metadata_dict["call_notes"] = {}
         
         similar_call_notes = f""
         tasks = []
@@ -308,11 +378,22 @@ class Rubidium():
             for future in concurrent.futures.as_completed(tasks):
                 similar_call_notes += future.result()
 
+        #update the metadata json so the changes are made visible
+        with self.metadata_lock:
+            with open(self.current_metadata_path, 'w') as f:
+                json.dump(self.curr_metadata_dict, f, indent=4)
+
         return self.extract_relevant(action_plan, question, similar_call_notes)
  
     def process_file(self, directory, relative_path, question):
         report_text = self.read_docx(f"{directory}/{relative_path}")
-        return self.retrieve_call_note(report_text, question)
+        relevant_indiv_call_note = self.retrieve_call_note(report_text, question)
+        
+        #update the metadata json
+        with self.metadata_lock:
+            self.curr_metadata_dict["call_notes"][relative_path] = relevant_indiv_call_note
+        
+        return relevant_indiv_call_note
             
     def retrieve_call_note(self, call_note, question, top_k: int = 9):
         '''
@@ -875,9 +956,6 @@ class Rubidium():
             
         for i in range(k):
             threads[i].join()
-        
-        
-
 class DiscordRuby(Rubidium):
     '''
     This is an instance of Rubidium that is used for Discord. We spawn an instance for each question that is being asked, and each instance handles their own question before terminating.
@@ -1059,7 +1137,7 @@ class ActorCriticRuby(Rubidium):
 
         This methodical process undertakes a comparative review of a range of factors including military capabilities, technological advancements, political developments, and economic conditions among nation-states. The primary aim of Net Assessment is to identify emerging threats and opportunities, essentially laying the groundwork for informed responses to an array of possible scenarios, making it a powerful tool in modern geopolitical and military strategy.
 
-        Net Assessment examines current trends, key competing factors, potential risks, and future prospects in a comparative manner. These comprehensive analyses form the bedrock of strategic predictions extending up to several decades in the future. Thus, leaders geared towards long-term security and https://github.com/fangsenberry/yggdrasilstrategic outlooks stand to benefit significantly from this indispensable tool.
+        Net Assessment examines current trends, key competing factors, potential risks, and future prospects in a comparative manner. These comprehensive analyses form the bedrock of strategic predictions extending up to several decades in the future. Thus, leaders geared towards long-term security and strategic outlooks stand to benefit significantly from this indispensable tool.
 
         The framework also paves the way for diverse types of materials and findings, ranging from deeply researched assessments to concise studies, informal appraisals, and topical memos. These resources, although initially produced in a highly classified environment, have been toned down and adapted for broader strategic and policy-related debates, serving as critical inputs for decision-makers in diverse geopolitical contexts. 
 
@@ -1939,3 +2017,6 @@ class ActorCriticRuby(Rubidium):
 
 #TODO: prediction nodes should have + 2 recurrence loops. more robust and detailed. it should ALWAYS be expanding as well. 
 #TODO: these parts should all contain the action plan as well, and be iteratively updated
+class AutonomousRuby(ActorCriticRuby):
+    def __init__(self, recurrence_count: int = 3):
+        super().__init__(recurrence_count)
