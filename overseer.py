@@ -5,6 +5,16 @@ This class handles parsing of the metadata of the
 import copy
 import matplotlib.pyplot as plt
 
+import sys
+from pathlib import Path
+
+# Path to the directory containing yggdrasil
+parent_dir = Path(__file__).resolve().parent
+sys.path.append(str(parent_dir))
+
+# Now you can import from yggdrasil
+from yggdrasil import midgard
+
 class Overseer():
     def __init__(self):
         pass
@@ -46,8 +56,20 @@ class Overseer():
             "trawled success count": 0,
             "trawled failure count": 0,
             "error code counts": {},
+            "summarisation usage": {
+                "prompt_tokens": 0,
+                "completion_tokens": 0,
+                "total_tokens": 0,
+            },
+            "summarisation cost": 0,
             "relevance success count": 0,
             "relevance fail count": 0,
+            "relevance usage": {
+                "prompt_tokens": 0,
+                "completion_tokens": 0,
+                "total_tokens": 0,
+            },
+            "relevance cost": 0,
             "link retrieval times": [],
             "ujeebu times": [],
         }
@@ -59,15 +81,16 @@ class Overseer():
                 website_metadata = query_metadata["websites"][wbn]
                 indiv_web_stat = website_statistics[wbn]
                 
-                # expected_number_of_links += website_metadata["top_k"]
-                expected_number_of_links += 3 #for now working with older metadata
+                expected_number_of_links += website_metadata["top_k"] #this can actually be parsed at the end, see the wbn loops. TODO:
+                # expected_number_of_links += 3 #for now working with older metadata
                 
                 num_links_retrieved = website_metadata["# links"]
                 total_number_of_links_retrieved += num_links_retrieved
                 
                 indiv_web_stat["link retrieval times"].append(website_metadata["link retrieval time taken"])
                 
-                indiv_web_stat["expected # of links"] += 3 #TODO: change this as well when we workign with new metadata
+                # indiv_web_stat["expected # of links"] += 3 #TODO: change this as well when we workign with new metadata
+                indiv_web_stat["expected # of links"] = website_metadata["top_k"]
                 indiv_web_stat["retrieved # of links"] += num_links_retrieved
                 
                 #get the per link trawling results
@@ -77,6 +100,14 @@ class Overseer():
                     if ujeebu_metadata["trawl status"] == "SUCCESS":
                         indiv_web_stat["trawled success count"] += 1
                         indiv_web_stat["ujeebu times"].append(ujeebu_metadata["trawl json response"]["time"])
+                        
+                        #check to see if we summarised it, and if so, add usage and cost
+                        if "summarisation usage" in ujeebu_metadata:
+                            indiv_web_stat["summarisation usage"]["prompt_tokens"] += ujeebu_metadata["summarisation usage"]["prompt_tokens"]
+                            indiv_web_stat["summarisation usage"]["completion_tokens"] += ujeebu_metadata["summarisation usage"]["completion_tokens"]
+                            indiv_web_stat["summarisation usage"]["total_tokens"] += ujeebu_metadata["summarisation usage"]["total_tokens"]
+                            indiv_web_stat["summarisation cost"] += ujeebu_metadata["summarisation cost"]
+                        
                     else:
                         indiv_web_stat["trawled failure count"] += 1
                     
@@ -86,11 +117,19 @@ class Overseer():
                     else:
                         indiv_web_stat["error code counts"][error_code] += 1
                         
-                    if "relevant status" in ujeebu_metadata:
-                        if ujeebu_metadata["relevant status"] == "SUCCESS":
+                    if "relevance status" in ujeebu_metadata:
+                        if ujeebu_metadata["relevance status"] == "SUCCESS":
                             indiv_web_stat["relevance success count"] += 1
                         else:
-                            indiv_web_stat["relevance fail count"] += 1     
+                            indiv_web_stat["relevance fail count"] += 1
+                            
+                        #pass or fail we pay the usage and cost
+                        indiv_web_stat["relevance usage"]["prompt_tokens"] += ujeebu_metadata["relevance usage"]["prompt_tokens"]
+                        indiv_web_stat["relevance usage"]["completion_tokens"] += ujeebu_metadata["relevance usage"]["completion_tokens"]
+                        indiv_web_stat["relevance usage"]["total_tokens"] += ujeebu_metadata["relevance usage"]["total_tokens"]
+                        indiv_web_stat["relevance cost"] += ujeebu_metadata["relevance cost"]
+                        
+                        
         
         final_overview = {
             "total number of queries": total_number_of_queries,
@@ -112,8 +151,23 @@ class Overseer():
         all_ujeebu_times = []
         total_trawl_success = 0
         total_trawl_fail = 0
-        total_relevant_success = 0
-        total_relevant_fail = 0
+        
+        total_article_summarisation_usage = {
+            "prompt_tokens": 0,
+            "completion_tokens": 0,
+            "total_tokens": 0,
+        }
+        total_article_summarisation_cost = 0
+        
+        total_relevance_success = 0
+        total_relevance_fail = 0
+        total_relevance_usage = {
+            "prompt_tokens": 0,
+            "completion_tokens": 0,
+            "total_tokens": 0,
+        }
+        total_relevance_cost = 0
+        
         #add the relevance percentage also for each website in the website stats
         for wbn in website_names:
             indiv_web_stat = website_statistics[wbn]
@@ -123,8 +177,18 @@ class Overseer():
             total_trawl_success += indiv_web_stat["trawled success count"]
             total_trawl_fail += indiv_web_stat["trawled failure count"]
             
-            total_relevant_success += indiv_web_stat["relevance success count"]
-            total_relevant_fail += indiv_web_stat["relevance fail count"]
+            total_article_summarisation_usage["prompt_tokens"] += indiv_web_stat["summarisation usage"]["prompt_tokens"]
+            total_article_summarisation_usage["completion_tokens"] += indiv_web_stat["summarisation usage"]["completion_tokens"]
+            total_article_summarisation_usage["total_tokens"] += indiv_web_stat["summarisation usage"]["total_tokens"]
+            total_article_summarisation_cost += indiv_web_stat["summarisation cost"]
+            
+            total_relevance_success += indiv_web_stat["relevance success count"]
+            total_relevance_fail += indiv_web_stat["relevance fail count"]
+            
+            total_relevance_usage["prompt_tokens"] += indiv_web_stat["relevance usage"]["prompt_tokens"]
+            total_relevance_usage["completion_tokens"] += indiv_web_stat["relevance usage"]["completion_tokens"]
+            total_relevance_usage["total_tokens"] += indiv_web_stat["relevance usage"]["total_tokens"]
+            total_relevance_cost += indiv_web_stat["relevance cost"]
             
             # final_overview[f"{wbn} statistics"] = indiv_web_stat
             
@@ -132,8 +196,14 @@ class Overseer():
         final_overview["total trawl fail"] = total_trawl_fail
         final_overview["trawl success percent out of total trawls"] = f"{(total_trawl_success / (total_trawl_success + total_trawl_fail)) * 100:.2f}%"
         
-        final_overview["total relevance sucess"] = total_relevant_success
-        final_overview["relevance success percent out of total trawl successes"] = f"{(total_relevant_success / total_trawl_success) * 100:.2f}%"
+        final_overview["total summarisation usage"] = total_article_summarisation_usage
+        final_overview["total summarisation cost"] = total_article_summarisation_cost
+        
+        final_overview["total relevance sucess"] = total_relevance_success
+        final_overview["relevance success percent out of total trawl successes"] = f"{(total_relevance_success / total_trawl_success) * 100:.2f}%"
+        
+        final_overview["total relevance usage"] = total_relevance_usage
+        final_overview["total relevance cost"] = total_relevance_cost
         
         # final_overview["link retrieval times"] = all_link_retrieval_times
         # final_overview["ujeebu times"] = all_ujeebu_times
