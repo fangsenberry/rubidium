@@ -229,8 +229,16 @@ class Rubidium():
         #reset all of the shared variables (across reports)
         self.curr_metadata_dict = {}
             
-        self.current_metadata_path = f"output/{title}/metadata.json"
-        with open(self.current_metadata_path, 'w') as f:
+        self.curr_metadata_path = f"output/{title}/metadata.json"
+        
+        #ordinarily i would handle it in the calling function that generated the thing i wantt o keep track of, but we need the directory generated first.
+        with self.metadata_lock:
+            self.curr_metadata_dict["title"] = title
+            #dump it to the json so changes are visible
+            with open(self.curr_metadata_path, 'w') as f:
+                json.dump(self.curr_metadata_dict, f, indent=4)
+        
+        with open(self.curr_metadata_path, 'w') as f:
             json.dump(self.curr_metadata_dict, f, indent=4)
         
         research, relevant_call_notes = self.get_research(question)
@@ -248,6 +256,14 @@ class Rubidium():
         second_layer = self.second_layer(prep_result, first_layer, research, question, relevant_call_notes)
 
         print("done with second layer")
+        
+        report_dump = f"QUESTION:\n{question}\n\nNA PREP RESULTS:\n{prep_result}\n\nFIRST LAYER:\n{first_layer}\n\nSECOND LAYER:\n{second_layer}\n\nRESEARCH:\n{research}"
+        
+        with self.metadata_lock:
+            self.curr_metadata_dict["report_dump"] = report_dump
+            #dump it to the json so changes are visible
+            with open(self.curr_metadata_path, 'w') as f:
+                json.dump(self.curr_metadata_dict, f, indent=4)
 
         try:
             finished_report = self.create_report_docx(title, question, prep_result, first_layer, second_layer, research)
@@ -255,12 +271,18 @@ class Rubidium():
             print(f"error creating report docx: {e}")
             print("saving as .txt instead...")
             with open(f"output/{title}/{title} report.txt", "w") as f:
-                f.write(f"QUESTION:\n{question}\n\nNA PREP RESULTS:\n{prep_result}\n\nFIRST LAYER:\n{first_layer}\n\nSECOND LAYER:\n{second_layer}\n\nRESEARCH:\n{research}")
+                f.write(report_dump)
 
         print("done with generated report")
 
         print("creating article")
         article = self.create_article(title, question, prep_result, first_layer, second_layer, research)
+        
+        with self.metadata_lock:
+            self.curr_metadata_dict["article"] = article
+            #dump it to the json so changes are visible
+            with open(self.curr_metadata_path, 'w') as f:
+                json.dump(self.curr_metadata_dict, f, indent=4)
 
         with open(f"output/{title}/{title} article.txt", "w") as f:
             f.write(f"{article}")
@@ -270,11 +292,17 @@ class Rubidium():
             
         try:
             newsletter_section = self.create_newsletter_section(article)
+            
+            with open(f"output/{title}/{title} newsletter section.txt", "w") as f:
+                f.write(f"{newsletter_section}")
+            
+            with self.metadata_lock:
+                self.curr_metadata_dict["newsletter_section"] = newsletter_section
+                #dump it to the json so changes are visible
+                with open(self.curr_metadata_path, 'w') as f:
+                    json.dump(self.curr_metadata_dict, f, indent=4)
         except Exception as e:
             print(f"error creating newsletter section: {e}")
-        
-        with open(f"output/{title}/{title} newsletter section.txt", "w") as f:
-            f.write(f"{newsletter_section}")
             
         #create the image now
         print("creating image...")
@@ -282,6 +310,16 @@ class Rubidium():
             self.create_cover_photo(article, f"output/{title}/{title}")
         except Exception as e:
             print(f"error creating cover photo: {e}")
+
+        print("creating blurb...")
+        blurb = self.create_blurb(report_dump)
+        with open(f"output/{title}/{title} blurb.txt", "w") as f:
+                f.write(f"{newsletter_section}")
+        with self.metadata_lock:
+            self.curr_metadata_dict["blurb"] = blurb
+            #dump it to the json so changes are visible
+            with open(self.curr_metadata_path, 'w') as f:
+                json.dump(self.curr_metadata_dict, f, indent=4)
 
         return
 
@@ -309,7 +347,7 @@ class Rubidium():
         with self.metadata_lock:
             self.curr_metadata_dict["action_plan"] = action_plan
             #dump it to the json so changes are visible
-            with open(self.current_metadata_path, 'w') as f:
+            with open(self.curr_metadata_path, 'w') as f:
                 json.dump(self.curr_metadata_dict, f, indent=4)
         
         actions = self.parse_plan(action_plan, question)
@@ -319,8 +357,9 @@ class Rubidium():
         
         with self.metadata_lock:
             self.curr_metadata_dict["call_note_additional_research_areas"] = research_areas
+            self.curr_metadata_dict["relevant_call_notes initial"] = relevant_call_notes
             #dump it to the json so changes are visible
-            with open(self.current_metadata_path, 'w') as f:
+            with open(self.curr_metadata_path, 'w') as f:
                 json.dump(self.curr_metadata_dict, f, indent=4)
         
         additional_queries = []
@@ -359,7 +398,7 @@ class Rubidium():
         with self.metadata_lock:
             self.curr_metadata_dict["original_search_queries"] = search_queries
             #dump it to the json so changes are visible
-            with open(self.current_metadata_path, 'w') as f:
+            with open(self.curr_metadata_path, 'w') as f:
                 json.dump(self.curr_metadata_dict, f, indent=4)
 
         search_queries.extend(additional_queries)
@@ -368,7 +407,7 @@ class Rubidium():
         with self.metadata_lock:
             self.curr_metadata_dict["final_search_queries"] = search_queries
             #dump it to the json so changes are visible
-            with open(self.current_metadata_path, 'w') as f:
+            with open(self.curr_metadata_path, 'w') as f:
                 json.dump(self.curr_metadata_dict, f, indent=4)
 
         pruned_searches = self.prune_searches(search_queries)
@@ -377,7 +416,7 @@ class Rubidium():
         with self.metadata_lock:
             self.curr_metadata_dict["pruned_search_queries"] = pruned_searches
             #dump it to the json so changes are visible
-            with open(self.current_metadata_path, 'w') as f:
+            with open(self.curr_metadata_path, 'w') as f:
                 json.dump(self.curr_metadata_dict, f, indent=4)
                 
         #track the lengths of both of them for easier viewing
@@ -385,41 +424,45 @@ class Rubidium():
             self.curr_metadata_dict["final_search_queries_length"] = len(search_queries)
             self.curr_metadata_dict["pruned_search_queries_length"] = len(pruned_searches)
             #dump it to the json so changes are visible
-            with open(self.current_metadata_path, 'w') as f:
+            with open(self.curr_metadata_path, 'w') as f:
                 json.dump(self.curr_metadata_dict, f, indent=4)
 
         news_searcher = onsearch.SearchManager()
         research = news_searcher.search_list(pruned_searches)
         
+        #we are going to add the search metadata to somewhere else because its too dense, want it to be a seperate file
         #get the metadata from the searching
         initial_search_metadata = news_searcher.get_metadata()
         #add it to our metadata
-        with self.metadata_lock:
-            self.curr_metadata_dict["initial_search_metadata"] = initial_search_metadata
-            #dump it to the json so changes are visible
-            with open(self.current_metadata_path, 'w') as f:
-                json.dump(self.curr_metadata_dict, f, indent=4)
+        with open(f"{self.curr_metadata_path} search metadata.json", 'w') as f: #a little janky adding it to the end but whatever will do for now TODO: to fix though
+            json.dump(initial_search_metadata, f, indent=4)
 
         #track the research in the metadata
         with self.metadata_lock:
             self.curr_metadata_dict["initial research"] = research
             #dump it to the json so changes are visible
-            with open(self.current_metadata_path, 'w') as f:
+            with open(self.curr_metadata_path, 'w') as f:
                 json.dump(self.curr_metadata_dict, f, indent=4)
 
-        summary = midgard.summarise(research)
+        print(f"length of initial research: {midgard.get_num_tokens(research)}")
+        summary, research_summary_usage = midgard.summarise(research, return_usage=True)
 
         print(f"length of initial summary: {midgard.get_num_tokens(summary)}")
-        while midgard.get_num_tokens(summary) > 8000:
+        while midgard.get_num_tokens(summary) > 16000:
             print(f"summary length for this loop starting at {midgard.get_num_tokens(summary)}")
-            summary = midgard.summarise(summary)
+            summary, further_summary_usage = midgard.summarise(summary, return_usage=True)
+            
+            research_summary_usage["prompt_tokens"] += further_summary_usage["prompt_tokens"]
+            research_summary_usage["completion_tokens"] += further_summary_usage["completion_tokens"]
+            
             print(f"summary length is now {midgard.get_num_tokens(summary)}")
             
         #track the final summary to compare with the initial research
         with self.metadata_lock:
             self.curr_metadata_dict["initial research summary"] = summary
+            self.curr_metadata_dict["initial research summary usage"] = research_summary_usage
             #dump it to the json so changes are visible
-            with open(self.current_metadata_path, 'w') as f:
+            with open(self.curr_metadata_path, 'w') as f:
                 json.dump(self.curr_metadata_dict, f, indent=4)
 
         return summary, relevant_call_notes
@@ -462,6 +505,9 @@ class Rubidium():
         tasks = []
         with concurrent.futures.ThreadPoolExecutor() as executor:
             for relative_path in relative_paths:
+                #check to see if its a hidden file like starts with .
+                if relative_path.startswith("."):
+                    continue
                 # Submit each file processing as a separate task
                 task = executor.submit(self.process_file, directory, relative_path, question)
                 tasks.append(task)
@@ -472,7 +518,7 @@ class Rubidium():
 
         #update the metadata json so the changes are made visible
         with self.metadata_lock:
-            with open(self.current_metadata_path, 'w') as f:
+            with open(self.curr_metadata_path, 'w') as f:
                 json.dump(self.curr_metadata_dict, f, indent=4)
 
         return self.extract_relevant(action_plan, question, similar_call_notes)
@@ -539,13 +585,30 @@ class Rubidium():
         
         tasks = []
         relevant_call_notes = ""
+        relevant_call_notes_usage = {
+            "prompt_tokens": 0,
+            "completion_tokens": 0,
+            "total_tokens": 0,
+        }
+        
         with concurrent.futures.ThreadPoolExecutor() as executor:
             for chunk in chunks:
                 task = executor.submit(self.extract_relevant_helper, action_plan, question, chunk)
                 tasks.append(task)
                 
             for future in tqdm(concurrent.futures.as_completed(tasks), total=len(tasks), desc="extract relevant"):
-                relevant_call_notes += future.result()
+                relevant_call_notes += future.result()[0]
+                
+                relevant_call_notes_usage["prompt_tokens"] += future.result()[1]["prompt_tokens"]
+                relevant_call_notes_usage["completion_tokens"] += future.result()[1]["completion_tokens"]
+                relevant_call_notes_usage["total_tokens"] += future.result()[1]["total_tokens"]
+                
+        with self.metadata_lock:
+            # self.curr_metadata_dict["relevant_call_notes"] = relevant_call_notes
+            self.curr_metadata_dict["relevant_call_notes_usage"] = relevant_call_notes_usage
+            #dump it to the json so changes are visible
+            with open(self.curr_metadata_path, 'w') as f:
+                json.dump(self.curr_metadata_dict, f, indent=4)
                 
         return relevant_call_notes
             
@@ -562,12 +625,12 @@ class Rubidium():
         {chunk}
         """
         
-        res = midgard.call_gpt_single(self.system_init, prompt, function_name="extract_relevant_helper", to_print=False, chosen_model="gpt-4")
+        res, usage = midgard.call_gpt_single(self.system_init, prompt, function_name="extract_relevant_helper", to_print=False, return_usage=True)
         
         if res == "NRC":
-            return ""
+            return "", usage
         else:
-            return res
+            return res, usage
     
     def identify_research_areas(self, question, relevant_call_notes):
         prompt = f"""
@@ -593,7 +656,7 @@ class Rubidium():
         return midgard.call_gpt_single(self.system_init, prompt, function_name="researchareas_to_sq", to_print=False).split(";")
 
     def na_prep(self, information, question, relevant_call_notes):
-        # information += f"\n\n{relevant_call_notes}"
+
         def wrapper(func_index):
             funcs = [
                 self.get_material_facts,
@@ -636,7 +699,16 @@ class Rubidium():
             {relevant_call_notes}
             """
         
-        return midgard.call_gpt_single(self.system_init, prompt, function_name="get_material_facts")
+        res = midgard.call_gpt_single(self.system_init, prompt, function_name="get_material_facts")
+        
+        #update the metadata
+        with self.metadata_lock:
+            self.curr_metadata_dict["initial material_facts"] = res
+            #dump it to the json so changes are visible
+            with open(self.curr_metadata_path, 'w') as f:
+                json.dump(self.curr_metadata_dict, f, indent=4)
+                
+        return res
 
     def get_force_catalysts(self, information, question, relevant_call_notes):
         prompt = f"""
@@ -654,8 +726,17 @@ class Rubidium():
             Question:
             {question}
             """
-        
-        return midgard.call_gpt_single(self.system_init, prompt, function_name="get_force_catalysts")
+    
+        res = midgard.call_gpt_single(self.system_init, prompt, function_name="get_force_catalysts")
+            
+        #update the metadata
+        with self.metadata_lock:
+            self.curr_metadata_dict["initial material_facts"] = res
+            #dump it to the json so changes are visible
+            with open(self.curr_metadata_path, 'w') as f:
+                json.dump(self.curr_metadata_dict, f, indent=4)
+                    
+        return res
         
     def get_constraints_friction(self, information, question, relevant_call_notes):
         prompt = f"""
@@ -677,13 +758,22 @@ class Rubidium():
             {relevant_call_notes}
             """
         
-        return midgard.call_gpt_single(self.system_init, prompt, function_name="get_constraints_friction")
+        res = midgard.call_gpt_single(self.system_init, prompt, function_name="get_constraints_friction")
+            
+        #update the metadata
+        with self.metadata_lock:
+            self.curr_metadata_dict["initial material_facts"] = res
+            #dump it to the json so changes are visible
+            with open(self.curr_metadata_path, 'w') as f:
+                json.dump(self.curr_metadata_dict, f, indent=4)
+                    
+        return res
 
     def get_alliance_law(self, information, question, relevant_call_notes):
         prompt = f"""
             You are working on the Alliances and Laws, the third step of the Net Assessment Framework. This is a brief description of what Alliances and Laws are:
             
-            {self.constraints_frictions_description}
+            {self.alliances_laws_description}
             
             Given the provided information and question, your goal is to identify, in full detail, the Alliances and Laws that are relevant to the question and situation, then explain why they are relevant and return them. You MUST MAKE SURE that you retain all statistical points and relevant technical details. If there are any pieces of data or technical information represented in the text, they must be represented identically in your response.
 
@@ -699,7 +789,16 @@ class Rubidium():
             {relevant_call_notes}
             """
         
-        return midgard.call_gpt_single(self.system_init, prompt, function_name="get_alliance_law")
+        res = midgard.call_gpt_single(self.system_init, prompt, function_name="get_alliance_law")
+            
+        #update the metadata
+        with self.metadata_lock:
+            self.curr_metadata_dict["initial material_facts"] = res
+            #dump it to the json so changes are visible
+            with open(self.curr_metadata_path, 'w') as f:
+                json.dump(self.curr_metadata_dict, f, indent=4)
+                    
+        return res
 
     def first_layer(self, prep_result, research, question, relevant_call_notes):
         prompt = f"""
@@ -729,7 +828,16 @@ class Rubidium():
                 {relevant_call_notes}
                 """
 
-        return midgard.call_gpt_single(self.system_init, prompt, function_name="first_layer")
+        res = midgard.call_gpt_single(self.system_init, prompt, function_name="first_layer")
+            
+        #update the metadata
+        with self.metadata_lock:
+            self.curr_metadata_dict["initial material_facts"] = res
+            #dump it to the json so changes are visible
+            with open(self.curr_metadata_path, 'w') as f:
+                json.dump(self.curr_metadata_dict, f, indent=4)
+                    
+        return res
 
     def second_layer(self, prep_result, first_layer, research, question, relevant_call_notes):
         #TODO:
@@ -769,13 +877,24 @@ class Rubidium():
             {"role": "assistant", "content": first_layer},
             {"role": "user", "content": second_layer_prompt},
         ]
-
-        return midgard.call_gpt_multi(messages, function_name="second_layer")
+        
+        res = midgard.call_gpt_multi(messages, function_name="second_layer")
+            
+        #update the metadata
+        with self.metadata_lock:
+            self.curr_metadata_dict["initial material_facts"] = res
+            #dump it to the json so changes are visible
+            with open(self.curr_metadata_path, 'w') as f:
+                json.dump(self.curr_metadata_dict, f, indent=4)
+                    
+        return res
 
     def get_title(self, question):
         prompt = f"I want you to come up with a short and succint yet impactful title of not more than 8 words for the report for the following Net Assessment question: {question}\n\nYou MUST ONLY RETURN the raw text of the title and nothing else, no quotes, no additional embellishments."
 
-        return midgard.call_gpt_single(self.system_init, prompt, function_name="get_title")
+        res = midgard.call_gpt_single(self.system_init, prompt, function_name="get_title")
+        
+        return res
     
     def plan_approach(self, question):
         prompt = f"""
@@ -1047,6 +1166,14 @@ class Rubidium():
             
         for i in range(k):
             threads[i].join()
+            
+    def create_blurb(self, report: str):
+        '''
+        Creates a short blurb for our report that we can put under the title to tell people what this is about.
+        '''
+        prompt = f"""I am going to give you a full Net Assessment Report. I am going to post this report on my website, and I need a short blurb/description that goes below the title of the report and communicates in an extremely general sense what this report covers. You should focus on succintly representing the insights that the report offers. Your blurb should be no more than 20 words. Here is the report:\n\n{report}"""
+        
+        return midgard.call_gpt_single(self.system_init, prompt, function_name="create_blurb")
 class DiscordRuby(Rubidium):
     '''
     This is an instance of Rubidium that is used for Discord. We spawn an instance for each question that is being asked, and each instance handles their own question before terminating.
@@ -1243,13 +1370,10 @@ class ActorCriticRuby(Rubidium):
     #     pass
     #THIS IS TO BE IMPLEMENTED BUT FIRST WE NEED TO MAKE SURE WE HAVE A HIGHER ORDER PLANNING STEP TO RECURISIVELY GO BACK TO
         
-    def get_material_facts(self, information, question, specific_persona):
-        base = super().get_material_facts(information, question, specific_persona)
+    def get_material_facts(self, information, question, relevant_call_notes):
+        base = super().get_material_facts(information, question, relevant_call_notes)
         
         to_criticise = base #just a variable we can update
-        
-        with open("first_mf.txt", "w") as f:
-            f.write(base)
         
         for i in tqdm(range(self.recurrence_count)):
             print(f"Recurrence Material Facts {i}")    
@@ -1289,8 +1413,12 @@ class ActorCriticRuby(Rubidium):
             
             feedback = midgard.call_gpt_single(self.critic_system_init, critic_prompt, function_name=f"get_material_facts (critic) iteration {i}")
             
-            with open("feedback_mf.txt", "w") as f:
-                f.write(feedback)
+            #update the metadata with the feedback from this iteration
+            with self.metadata_lock:
+                self.curr_metadata_dict[f"material facts critic iteration {i}"] = feedback
+                #dump it to the json so changes are visible
+                with open(self.curr_metadata_path, 'w') as f:
+                    json.dump(self.curr_metadata_dict, f, indent=4)
             
             actor_prompt = f"""
             Your goal as the Actor is to work on criticism that the Critic has provided you with, and update the current content that you are working on.
@@ -1301,10 +1429,15 @@ class ActorCriticRuby(Rubidium):
             
             Given the provided information and question, your goal is to identify the Material Facts that are relevant to analysis of and answering of the question, and return them. You MUST MAKE SURE that you retain all statistical points and relevant technical details. If there are any pieces of data or technical information represented in the text, they must be represented identically in your response. You MUST NOT attempt to answer the question. This phase is the preparation (Material Facts) phase, and there are many more components before the answer is ready to be determined.
             
+            You have also been given relevant statements made from a call transcript of high level analysts. You MUST not bias your analysis towards these statements, they are just there to offer insight that might not be public knowledge or easily discoverable. You should take these pieces of information into account, but you MUST also treat them the same as all the other pieces of information that you have been given in terms of importance and weight. Consider this information that is helping you, the analyst, make the best possible analysis that you can, NOT a guiding set of statements that you adhere to. This relevant information is provided below under the section "Relevant Call Notes". If there is nothing under that section, then this means that has been no recent relevant insights from this group of analysts.
+            
             To reiterate, you MUST NOT make any references to the fact that you are playing the role of the Actor in this pair, or that you are operating on criticism from a Critic. You MUST directly perform the analysis, and directly improve on the criticism, without referencing the Actor-Critic framework. Your output, which is the analysis, will be directly given to the reader. They do not know that you are in an Actor Critic pair, and any references to it is detrimental and will confuse readers. You should also not be making any generalised statements for how you are going to approach building the analysis, you MUST simply do it. Any general concluding statements about how the analysis will be helpful because of its nature in the Net Assessment framework is also not conducive, you must remember that the reader wants to understand the analysis, but not how the underlying framework created this analysis. You can explain how the analysis or content you have provided is conducive to understanding the question or this Net Assessment component, and in fact you should do so, but it should be contextualized to the question and context of the analysis.
             
             Information:
             {information}
+            
+            Relevant Call Notes:
+            {relevant_call_notes}
             
             Question:
             {question}
@@ -1318,10 +1451,24 @@ class ActorCriticRuby(Rubidium):
             
             to_criticise = midgard.call_gpt_single(self.actor_system_init, actor_prompt, function_name=f"get_material_facts (actor) iteration {i}")
             
+            #update the metadata with the actor from this iteration
+            with self.metadata_lock:
+                self.curr_metadata_dict[f"material facts actor iteration {i}"] = to_criticise
+                #dump it to the json so changes are visible
+                with open(self.curr_metadata_path, 'w') as f:
+                    json.dump(self.curr_metadata_dict, f, indent=4)
+            
+        #update the metadata with the final actor output, this will be a duplicate of the last iteration but its okay
+        with self.metadata_lock:
+            self.curr_metadata_dict[f"actor-critic material facts final"] = to_criticise
+            #dump it to the json so changes are visible
+            with open(self.curr_metadata_path, 'w') as f:
+                json.dump(self.curr_metadata_dict, f, indent=4)
+            
         return to_criticise
     
-    def get_force_catalysts(self, information, question, specific_persona):
-        base = super().get_material_facts(information, question, specific_persona)
+    def get_force_catalysts(self, information, question, relevant_call_notes):
+        base = super().get_force_catalysts(information, question, relevant_call_notes)
         
         to_criticise = base #just a variable we can update
         
@@ -1370,8 +1517,12 @@ class ActorCriticRuby(Rubidium):
             
             feedback = midgard.call_gpt_single(self.critic_system_init, critic_prompt, function_name=f"get_force_catalysts (critic) iteration {i}")
             
-            with open("feedback_fc.txt", "w") as f:
-                f.write(feedback)
+            #update the metadata with the feedback from this iteration
+            with self.metadata_lock:
+                self.curr_metadata_dict[f"force catalysts critic iteration {i}"] = feedback
+                #dump it to the json so changes are visible
+                with open(self.curr_metadata_path, 'w') as f:
+                    json.dump(self.curr_metadata_dict, f, indent=4)
             
             actor_prompt = f"""
             Your goal as the Actor is to work on criticism that the Critic has provided you with, and update the current content that you are working on. Here was the content you gave for the previous iteration.
@@ -1382,10 +1533,15 @@ class ActorCriticRuby(Rubidium):
             
             Given the provided information and question, your goal is to identify and explain, in depth, about the Force Catalysts that are relevant to the question and situation, and return them. Remember that your output is the content covering the Force Catalysts. The Critic's assessment is criticism that you must take into account, but you don't need to mention the points that the Critic has raised; you simply need to listen to the feedback and return the improved output. You should not make any statements as to how you are using Force Catalysts, but rather you should just do it, and identify what the Force Catalysts are. You MUST MAKE SURE that you retain all statistical points and relevant technical details. If there are any pieces of data or technical information represented in the text, they must be represented identically in your response. Generally speaking, you should be expanding and adjusting your last iteration, not decreasing or minimizing it. You should NEVER remove detail from the original piece of text. You should always be as verbose as possible. You must retain all numbers and/or statistics, and detail from the information that you consider relevant. You must also keep all names. You MUST NOT attempt to answer the question. This phase is the preparation (Force Catalysts) phase, and there are many more components before the answer is ready to be determined.
             
+            You have also been given relevant statements made from a call transcript of high level analysts. You MUST not bias your analysis towards these statements, they are just there to offer insight that might not be public knowledge or easily discoverable. You should take these pieces of information into account, but you MUST also treat them the same as all the other pieces of information that you have been given in terms of importance and weight. Consider this information that is helping you, the analyst, make the best possible analysis that you can, NOT a guiding set of statements that you adhere to. This relevant information is provided below under the section "Relevant Call Notes". If there is nothing under that section, then this means that has been no recent relevant insights from this group of analysts.
+            
             To reiterate, you MUST NOT make any references to the fact that you are playing the role of the Actor in this pair, or that you are operating on criticism from a Critic. You MUST directly perform the analysis, and directly improve on the criticism, without referencing the Actor-Critic framework. Your output, which is the analysis, will be directly given to the reader. They do not know that you are in an Actor Critic pair, and any references to it is detrimental and will confuse readers. You should also not be making any generalised statements for how you are going to approach building the analysis, you MUST simply do it. Any general concluding statements about how the analysis will be helpful because of its nature in the Net Assessment framework is also not conducive, you must remember that the reader wants to understand the analysis, but not how the underlying framework created this analysis. You can explain how the analysis or content you have provided is conducive to understanding the question or this Net Assessment component, and in fact you should do so, but it should be contextualized to the question and context of the analysis.
             
             Information:
             {information}
+            
+            Relevant Call Notes:
+            {relevant_call_notes}
             
             Question:
             {question}
@@ -1399,10 +1555,24 @@ class ActorCriticRuby(Rubidium):
             
             to_criticise = midgard.call_gpt_single(self.actor_system_init, actor_prompt, function_name=f"get_force_catalysts (actor) iteration {i}")
             
+            #update the metadata with the actor from this iteration
+            with self.metadata_lock:
+                self.curr_metadata_dict[f"force catalysts actor iteration {i}"] = to_criticise
+                #dump it to the json so changes are visible
+                with open(self.curr_metadata_path, 'w') as f:
+                    json.dump(self.curr_metadata_dict, f, indent=4)
+            
+        #update the metadata with the final actor output, this will be a duplicate of the last iteration but its okay
+        with self.metadata_lock:
+            self.curr_metadata_dict[f"actor-critic force catalysts final"] = to_criticise
+            #dump it to the json so changes are visible
+            with open(self.curr_metadata_path, 'w') as f:
+                json.dump(self.curr_metadata_dict, f, indent=4)
+            
         return to_criticise
     
-    def get_constraints_friction(self, information, question, specific_persona):
-        base = super().get_material_facts(information, question, specific_persona)
+    def get_constraints_friction(self, information, question, relevant_call_notes):
+        base = super().get_constraints_friction(information, question, relevant_call_notes)
         
         to_criticise = base
         
@@ -1458,6 +1628,13 @@ class ActorCriticRuby(Rubidium):
             
             feedback = midgard.call_gpt_single(self.critic_system_init, critic_prompt, function_name=f"get_constraints_friction (critic) iteration {i}")
             
+            #update the metadata with the feedback from this iteration
+            with self.metadata_lock:
+                self.curr_metadata_dict[f"constraints frictions critic iteration {i}"] = feedback
+                #dump it to the json so changes are visible
+                with open(self.curr_metadata_path, 'w') as f:
+                    json.dump(self.curr_metadata_dict, f, indent=4)
+            
             actor_prompt = f"""
             Your goal as the Actor is to work on criticism that the Critic has provided you with, and update the current content that you are working on. Here was the content you gave for the previous iteration.
             
@@ -1467,10 +1644,15 @@ class ActorCriticRuby(Rubidium):
             
             Given the provided information and question, your goal is to identify and explain, in depth, about the Constraints and Frictions that are relevant to the question and situation, and return them. Remember that your output is the content covering the Constraints and Frictions. The Critic's assessment is criticism that you must take into account, but you don't need to mention the points that the Critic has raised; you simply need to listen to the feedback and return the improved output. You should not make any statements as to how you are using Constraints and Frictions, but rather you should just do it, and identify what the Constraints and Frictions are. You MUST MAKE SURE that you retain all statistical points and relevant technical details. If there are any pieces of data or technical information represented in the text, they must be represented identically in your response. Generally speaking, you should be expanding and adjusting your last iteration, not decreasing or minimizing it. You should NEVER remove detail from the original piece of text. You should always be as verbose as possible. You must retain all numbers and/or statistics, and detail from the information that you consider relevant. You must also keep all names. You MUST NOT attempt to answer the question. This phase is the preparation (Constraints and Frictions) phase, and there are many more components before the answer is ready to be determined.
             
+            You have also been given relevant statements made from a call transcript of high level analysts. You MUST not bias your analysis towards these statements, they are just there to offer insight that might not be public knowledge or easily discoverable. You should take these pieces of information into account, but you MUST also treat them the same as all the other pieces of information that you have been given in terms of importance and weight. Consider this information that is helping you, the analyst, make the best possible analysis that you can, NOT a guiding set of statements that you adhere to. This relevant information is provided below under the section "Relevant Call Notes". If there is nothing under that section, then this means that has been no recent relevant insights from this group of analysts.
+            
             To reiterate, you MUST NOT make any references to the fact that you are playing the role of the Actor in this pair, or that you are operating on criticism from a Critic. You MUST directly perform the analysis, and directly improve on the criticism, without referencing the Actor-Critic framework. Your output, which is the analysis, will be directly given to the reader. They do not know that you are in an Actor Critic pair, and any references to it is detrimental and will confuse readers. You should also not be making any generalised statements for how you are going to approach building the analysis, you MUST simply do it. Any general concluding statements about how the analysis will be helpful because of its nature in the Net Assessment framework is also not conducive, you must remember that the reader wants to understand the analysis, but not how the underlying framework created this analysis. You can explain how the analysis or content you have provided is conducive to understanding the question or this Net Assessment component, and in fact you should do so, but it should be contextualized to the question and context of the analysis.
             
             Information:
             {information}
+            
+            Relevant Call Notes:
+            {relevant_call_notes}
             
             Question:
             {question}
@@ -1481,10 +1663,24 @@ class ActorCriticRuby(Rubidium):
             
             to_criticise = midgard.call_gpt_single(self.actor_system_init, actor_prompt, function_name=f"get_constraints_friction (actor) iteration {i}")
             
+            #update the metadata with the actor from this iteration
+            with self.metadata_lock:
+                self.curr_metadata_dict[f"constraints frictions actor iteration {i}"] = to_criticise
+                #dump it to the json so changes are visible
+                with open(self.curr_metadata_path, 'w') as f:
+                    json.dump(self.curr_metadata_dict, f, indent=4)
+            
+        #update the metadata with the final actor output, this will be a duplicate of the last iteration but its okay
+        with self.metadata_lock:
+            self.curr_metadata_dict[f"actor-critic constraints frictions final"] = to_criticise
+            #dump it to the json so changes are visible
+            with open(self.curr_metadata_path, 'w') as f:
+                json.dump(self.curr_metadata_dict, f, indent=4)
+            
         return to_criticise
             
-    def get_alliances_laws(self, information, question, specific_persona):
-        base = super().get_alliance_law(information, question, specific_persona)
+    def get_alliances_laws(self, information, question, relevant_call_notes):
+        base = super().get_alliance_law(information, question, relevant_call_notes)
         
         to_criticise = base
         
@@ -1604,7 +1800,14 @@ class ActorCriticRuby(Rubidium):
             {question}
             """
             
-            feedback = midgard.call_gpt_single(self.critic_system_init, critic_prompt, function_name=f"get_constraints_friction (critic) iteration {i}")
+            feedback = midgard.call_gpt_single(self.critic_system_init, critic_prompt, function_name=f"get_alliance_law (critic) iteration {i}")
+            
+            #update the metadata with the feedback from this iteration
+            with self.metadata_lock:
+                self.curr_metadata_dict[f"alliances laws critic iteration {i}"] = feedback
+                #dump it to the json so changes are visible
+                with open(self.curr_metadata_path, 'w') as f:
+                    json.dump(self.curr_metadata_dict, f, indent=4)
             
             actor_prompt = f"""
             Your goal as the Actor is to work on criticism that the Critic has provided you with, and update the current content that you are working on. Here was the content you gave for the previous iteration.
@@ -1627,7 +1830,21 @@ class ActorCriticRuby(Rubidium):
             {feedback}
             """
             
-            to_criticise = midgard.call_gpt_single(self.actor_system_init, actor_prompt, function_name=f"get_constraints_friction (actor) iteration {i}")
+            to_criticise = midgard.call_gpt_single(self.actor_system_init, actor_prompt, function_name=f"get_alliance_law (actor) iteration {i}")
+            
+            #update the metadata with the actor from this iteration
+            with self.metadata_lock:
+                self.curr_metadata_dict[f"alliances laws actor iteration {i}"] = to_criticise
+                #dump it to the json so changes are visible
+                with open(self.curr_metadata_path, 'w') as f:
+                    json.dump(self.curr_metadata_dict, f, indent=4)
+            
+        #update the metadata with the final actor output, this will be a duplicate of the last iteration but its okay
+        with self.metadata_lock:
+            self.curr_metadata_dict[f"actor-critic alliances laws final"] = to_criticise
+            #dump it to the json so changes are visible
+            with open(self.curr_metadata_path, 'w') as f:
+                json.dump(self.curr_metadata_dict, f, indent=4)
             
         return to_criticise
      
@@ -1680,8 +1897,8 @@ class ActorCriticRuby(Rubidium):
         
         return midgard.call_gpt_single(self.system_init, prompt, function_name="infer_value")
             
-    def first_layer(self, prep_result, research, question, relevant_call_notes, specific_persona):
-        base = super().first_layer(prep_result, research, question, relevant_call_notes, specific_persona)
+    def first_layer(self, prep_result, research, question, relevant_call_notes):
+        base = super().first_layer(prep_result, research, question, relevant_call_notes)
         
         #this is an additional step that should be placed somewhere else #TODO:
         dynamic_criteria = self.infer_value(question)
@@ -1753,6 +1970,13 @@ class ActorCriticRuby(Rubidium):
             
             feedback = midgard.call_gpt_single(self.critic_system_init, critic_prompt, function_name=f"first_layer (critic) iteration {i}")
             
+            #update the metadata with the feedback from this iteration
+            with self.metadata_lock:
+                self.curr_metadata_dict[f"first layer critic iteration {i}"] = feedback
+                #dump it to the json so changes are visible
+                with open(self.curr_metadata_path, 'w') as f:
+                    json.dump(self.curr_metadata_dict, f, indent=4)
+            
             actor_prompt = f"""
             Your goal as the Actor is to work on criticism that the Critic has provided you with, and update the current content that you are working on. Here was the content you gave for the previous iteration.
             
@@ -1798,7 +2022,7 @@ class ActorCriticRuby(Rubidium):
             
             There are 4, sequential components of Net Assessment before the projection. They are (in no particular order): Material Facts, Force Catalysts, Constraints and Frictions, and Alliances and Laws. The first 4 components have already been completed, and they are provided below for your reference. The definitions of these components have also been provided, as to allow you to understand better what role they serve in Net Assessment.
             
-            You have also been given relevant statements made from a call transcript of high level analysts. You MUST not bias your analysis towards these statements, they are just there to offer insight that might not be public knowledge or easily discoverable. You should take these pieces of information into account, but you MUST also treat them the same as all the other aspects of information and Net Assessment components that you have been given in terms of importance and weight. Consider this information that is helping you, the analyst, make the best possible analysis that you can, NOT a guiding set of statements that you adhere to. This relevant information is provided below under the section "Relevant Call Notes". If there is nothing under that section, then this means that has been no recent relevant insights from this group of analysts.
+            You have also been given relevant statements made from a call transcript of high level analysts. You MUST not bias your analysis towards these statements, they are just there to offer insight that might not be public knowledge or easily discoverable. You should take these pieces of information into account, but you MUST also treat them the same as all the other pieces of information that you have been given in terms of importance and weight. Consider this information that is helping you, the analyst, make the best possible analysis that you can, NOT a guiding set of statements that you adhere to. This relevant information is provided below under the section "Relevant Call Notes". If there is nothing under that section, then this means that has been no recent relevant insights from this group of analysts.
             
             Additionally, here is a set of dynamic criteria that is specific to the question. These criteria have been identified as being able to provide the most value to the person asking the question, and you should focus on these criteria when building your analysis.
             
@@ -1835,15 +2059,26 @@ class ActorCriticRuby(Rubidium):
             {feedback}
             """
             
-            with open(f"first_layer critic {self.recurrence_count}.txt", "w") as f:
-                f.write(feedback)
-            
             to_criticise = midgard.call_gpt_single(self.actor_system_init, actor_prompt, function_name=f"first_layer (actor) iteration {i}")
+            
+            #update the metadata with the actor from this iteration
+            with self.metadata_lock:
+                self.curr_metadata_dict[f"first layer actor iteration {i}"] = to_criticise
+                #dump it to the json so changes are visible
+                with open(self.curr_metadata_path, 'w') as f:
+                    json.dump(self.curr_metadata_dict, f, indent=4)
+            
+        #update the metadata with the final actor output, this will be a duplicate of the last iteration but its okay
+        with self.metadata_lock:
+            self.curr_metadata_dict[f"actor-critic first layer final"] = to_criticise
+            #dump it to the json so changes are visible
+            with open(self.curr_metadata_path, 'w') as f:
+                json.dump(self.curr_metadata_dict, f, indent=4)
             
         return to_criticise
 
-    def second_layer(self, prep_result, first_layer, research, question, relevant_call_notes, specific_persona):
-        base = super().second_layer(prep_result, first_layer, research, question, relevant_call_notes, specific_persona)
+    def second_layer(self, prep_result, first_layer, research, question, relevant_call_notes):
+        base = super().second_layer(prep_result, first_layer, research, question, relevant_call_notes)
         
         to_criticise = base
         
@@ -1904,8 +2139,12 @@ class ActorCriticRuby(Rubidium):
         
             feedback = midgard.call_gpt_single(self.critic_system_init, critic_prompt, function_name=f"second_layer (critic) iteration {i}")
             
-            with open(f"second_layer critic {self.recurrence_count}.txt", "w") as f:
-                f.write(feedback)
+            #update the metadata with the feedback from this iteration
+            with self.metadata_lock:
+                self.curr_metadata_dict[f"second layer critic iteration {i}"] = feedback
+                #dump it to the json so changes are visible
+                with open(self.curr_metadata_path, 'w') as f:
+                    json.dump(self.curr_metadata_dict, f, indent=4)
             
             actor_prompt = f"""
             Your goal as the Actor is to work on criticism that the Critic has provided you with, and update the current content that you are working on. Here was the content you gave for the previous iteration.
@@ -1943,7 +2182,7 @@ class ActorCriticRuby(Rubidium):
             
             There are 4, sequential components of Net Assessment before the projection. They are (in no particular order): Material Facts, Force Catalysts, Constraints and Frictions, and Alliances and Laws. The first 4 components have already been completed, and they are provided below for your reference. The definitions of these components have also been provided, as to allow you to understand better what role they serve in Net Assessment.
             
-            You have also been given relevant statements made from a call transcript of high level analysts. You MUST not bias your analysis towards these statements, they are just there to offer insight that might not be public knowledge or easily discoverable. You should take these pieces of information into account, but you MUST also treat them the same as all the other aspects of information and Net Assessment components that you have been given in terms of importance and weight. Consider this information that is helping you, the analyst, make the best possible analysis that you can, NOT a guiding set of statements that you adhere to. This relevant information is provided below under the section "Relevant Call Notes". If there is nothing under that section, then this means that has been no recent relevant insights from this group of analysts.
+            You have also been given relevant statements made from a call transcript of high level analysts. You MUST not bias your analysis towards these statements, they are just there to offer insight that might not be public knowledge or easily discoverable. You should take these pieces of information into account, but you MUST also treat them the same as all the other pieces of information that you have been given in terms of importance and weight. Consider this information that is helping you, the analyst, make the best possible analysis that you can, NOT a guiding set of statements that you adhere to. This relevant information is provided below under the section "Relevant Call Notes". If there is nothing under that section, then this means that has been no recent relevant insights from this group of analysts.
             
             You MUST answer the question directly, and consider these guiding points:
             1. Formulate a thesis that answers the question, that is completely different from the first layer.
@@ -1980,6 +2219,20 @@ class ActorCriticRuby(Rubidium):
             """
             
             to_criticise = midgard.call_gpt_single(self.actor_system_init, actor_prompt, function_name=f"second layer (actor) iteration {i}")
+            
+            #update the metadata with the actor from this iteration
+            with self.metadata_lock:
+                self.curr_metadata_dict[f"second layer actor iteration {i}"] = to_criticise
+                #dump it to the json so changes are visible
+                with open(self.curr_metadata_path, 'w') as f:
+                    json.dump(self.curr_metadata_dict, f, indent=4)
+            
+        #update the metadata with the final actor output, this will be a duplicate of the last iteration but its okay
+        with self.metadata_lock:
+            self.curr_metadata_dict[f"actor-critic second layer final"] = to_criticise
+            #dump it to the json so changes are visible
+            with open(self.curr_metadata_path, 'w') as f:
+                json.dump(self.curr_metadata_dict, f, indent=4)
             
         return to_criticise
     

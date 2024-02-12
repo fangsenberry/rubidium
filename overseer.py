@@ -90,12 +90,17 @@ class Overseer():
                 indiv_web_stat["link retrieval times"].append(website_metadata["link retrieval time taken"])
                 
                 # indiv_web_stat["expected # of links"] += 3 #TODO: change this as well when we workign with new metadata
-                indiv_web_stat["expected # of links"] = website_metadata["top_k"]
+                indiv_web_stat["expected # of links"] += website_metadata["top_k"]
                 indiv_web_stat["retrieved # of links"] += num_links_retrieved
                 
                 #get the per link trawling results
                 for link in website_metadata["links"]:
-                    ujeebu_metadata = website_metadata[link]
+                    #the link might have failed with some error before we do the metadata, so lets try except for now
+                    try:
+                        ujeebu_metadata = website_metadata[link]
+                    except:
+                        continue
+                    
                     
                     if ujeebu_metadata["trawl status"] == "SUCCESS":
                         indiv_web_stat["trawled success count"] += 1
@@ -247,7 +252,8 @@ class Overseer():
         '''
     
     
-'''
-This should calculate the cost for things and keep track of the per token price, so we keep track here, not other place
-should also track the mapping for status codes for ujeebu here..? or in onsearch
-'''
+    def get_cost_overview(self, search_metadata, report_metadata):
+        '''
+        gets an overview of cost for all the seperate components for one report
+        '''
+        pass

@@ -47,21 +47,19 @@ sys.path.append(str(parent_dir))
 # Now you can import from yggdrasil
 from yggdrasil import midgard
 
-import helpers
-
 
 class SearchManager():
     '''
     This is the class that handles all of the
     '''
     def __init__(self) -> None:
-        self.max_ujeebu_requests_concurrent = 20
-        self.ujeebu_requests_per_second = 2
+        self.max_ujeebu_requests_concurrent = 50
+        self.ujeebu_requests_per_second = 5
         self.search_calltimes = deque(maxlen=self.ujeebu_requests_per_second)
         self.search_calltimes_lock = threading.Lock()
         self.search_semaphore = threading.BoundedSemaphore(self.max_ujeebu_requests_concurrent)
 
-        self.search_website_links_semaphore = threading.BoundedSemaphore(50)
+        self.search_website_links_semaphore = threading.BoundedSemaphore(35)
         
         self.timeout_lock = threading.Lock()
         self.timeout_check = False
@@ -343,7 +341,6 @@ class SearchManager():
 
                     driver.quit()
 
-
                 with self.metadata_lock:
                     self.metadata[query]["websites"][website_name] = {}
                     self.metadata[query]["websites"][website_name]["top_k"] = top_k
@@ -463,11 +460,11 @@ class SearchManager():
                 try:
                     # print(f"{self.get_remaining_resources()} resources left")
                     with self.search_calltimes_lock:
-                        if len(self.search_calltimes) == 2:
+                        if len(self.search_calltimes) >= 5:
                             # print(f"SEARCH CALLTIMES: {self.search_calltimes}")
                             time_diff = time.time() - self.search_calltimes[0]
-                            if time_diff < 1.5:
-                                sleep_time = 1.5 - time_diff
+                            if time_diff < 1.0:
+                                sleep_time = 1.0 - time_diff
                                 # print(f"SLEEPING FOR {sleep_time} SECONDS")
                                 time.sleep(sleep_time)
 
@@ -557,7 +554,7 @@ class SearchManager():
                     try_count -= 1
                     continue
             except Exception as e:
-                print(e)
+                print(f"error in relevance check: {e}")
                 try_count -= 1
                 pass
             
